@@ -8,21 +8,24 @@ import org.springframework.stereotype.Service;
 
 import com.mertdev.therawdata.bussines.abstracts.UserService;
 import com.mertdev.therawdata.bussines.responses.GetUserResponse;
-import com.mertdev.therawdata.core.utilities.mappers.abstracts.DtoToUserMappers;
+import com.mertdev.therawdata.core.utilities.mappers.abstracts.DTOToUserMappers;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.UserToDTOMappers;
 import com.mertdev.therawdata.dataAccess.abstracts.UserRepository;
 import com.mertdev.therawdata.entities.concretes.User;
 
 import io.jsonwebtoken.lang.Collections;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor 
+@AllArgsConstructor
 public class UserServiceImpl implements UserService{
 	
-	UserRepository userRepository;
-	UserToDTOMappers toDTOMappers;
-	DtoToUserMappers toUserMappers;
+	private final UserRepository userRepository;
+	private final UserToDTOMappers toDTOMappers;
+	private final DTOToUserMappers toUserMappers;
 	@Override
 	public String getCurrentUsername() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

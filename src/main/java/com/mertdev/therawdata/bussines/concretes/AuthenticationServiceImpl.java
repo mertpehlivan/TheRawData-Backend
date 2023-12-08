@@ -16,11 +16,10 @@ import com.mertdev.therawdata.entities.concretes.Role;
 import com.mertdev.therawdata.entities.concretes.User;
 import com.mertdev.therawdata.exceptions.EmailOrPasswordNotFound;
 
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 @Service
-@RequiredArgsConstructor
-
-///hello
+@AllArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService{
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;

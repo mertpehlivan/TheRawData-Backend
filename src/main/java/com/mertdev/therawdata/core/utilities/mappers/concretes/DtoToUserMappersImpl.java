@@ -4,10 +4,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.mertdev.therawdata.bussines.responses.GetUserResponse;
-import com.mertdev.therawdata.core.utilities.mappers.abstracts.DtoToUserMappers;
+import com.mertdev.therawdata.core.utilities.mappers.abstracts.DTOToUserMappers;
 import com.mertdev.therawdata.entities.concretes.User;
 
-public class DtoToUserMappersImpl implements DtoToUserMappers {
+public class DtoToUserMappersImpl implements DTOToUserMappers {
 
 	@Override
 	public List<GetUserResponse> userTo(List<User> users) {

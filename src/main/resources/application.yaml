@@ -1,0 +1,31 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/therawdata
+    username: postgres
+    password: 123
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+      javax.persistence.validation.mode: none
+
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+s3:
+  endpointUrl: https://s3.amazonaws.com
+  accessKeyId: AKIASJSUFYUKQQGIXM63
+  secretKey: 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
+  bucketName: baligongbuckettest
+  region: eu-west-1

@@ -6,8 +6,10 @@ import java.util.UUID;
 import com.mertdev.therawdata.entities.concretes.PublicationAuthor;
 import com.mertdev.therawdata.entities.concretes.PublicationPost;
 import com.mertdev.therawdata.entities.concretes.RawData;
+import com.mertdev.therawdata.entities.concretes.RawDataFile;
 import com.mertdev.therawdata.entities.concretes.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,6 +18,7 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrimaryKeyJoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,5 +41,7 @@ public abstract class Publication {
     
     @OneToMany(mappedBy = "publicationId")
 	private List<PublicationAuthor> publicationAuthors;
+    
+    
     
 }

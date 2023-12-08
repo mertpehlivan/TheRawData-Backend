@@ -24,9 +24,6 @@ public class Article extends Publication{
 	private String pages;
 	private String doi;
 	
-	@OneToMany(mappedBy = "publicationId")
-	@JsonBackReference
-	private List<RawDataFile> rawDataFiles;
 	
 	public String getJournalName() {
 		return journalName;

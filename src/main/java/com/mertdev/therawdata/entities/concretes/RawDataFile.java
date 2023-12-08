@@ -1,9 +1,7 @@
 package com.mertdev.therawdata.entities.concretes;
 
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.mertdev.therawdata.entities.abstracts.Publication;
+import java.util.UUID;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,16 +21,16 @@ import lombok.NoArgsConstructor;
 @Table(name = "rawDataFile")
 public class RawDataFile {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 	private String name;
 	
-	@ManyToOne
-	@JoinColumn(name="publicationId")
-	@JsonBackReference
-	private Publication publicationId;
+
 	
 	@OneToMany(mappedBy = "rawDataFileId")
 	private List<RawData> rawDatas;
 	
+	@ManyToOne
+	@JoinColumn(name="publicationPostId")
+    private PublicationPost publicationPostId;
 }

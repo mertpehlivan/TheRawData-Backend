@@ -20,8 +20,10 @@ public class RawData {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	private String previewImageName;
 	private String name;
 	private String comment;
+	private String rawDataName;
 	
 	@ManyToOne
 	@JoinColumn(name = "rawdataFileId", nullable = false)

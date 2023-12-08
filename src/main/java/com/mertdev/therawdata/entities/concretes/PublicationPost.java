@@ -37,5 +37,8 @@ public class PublicationPost {
     @JoinColumn(name = "publicationId", referencedColumnName = "id")
 	private Publication publication;
 	
+	@OneToMany(mappedBy="publicationPostId")
+    private List<RawDataFile> rawDataFile;
+	
 	
 }

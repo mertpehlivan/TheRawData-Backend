@@ -1,7 +1,9 @@
 package com.mertdev.therawdata.bussines.abstracts;
 
-import com.mertdev.therawdata.bussines.requests.CreateAuthorsRequest;
+import java.util.List;
+
+import com.mertdev.therawdata.entities.abstracts.Publication;
 
 public interface PublicationAuthorService {
-	public void createAuthor(CreateAuthorsRequest createAuthorsRequest);
+	public void createAuthor(List<String> authors, Publication publication);
 }

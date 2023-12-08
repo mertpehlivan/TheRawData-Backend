@@ -1,10 +1,10 @@
 package com.mertdev.therawdata.core.utilities.mappers.concretes;
 
 import com.mertdev.therawdata.bussines.requests.CreateArticleRequest;
-import com.mertdev.therawdata.core.utilities.mappers.abstracts.RequestToArticleMappers;
+import com.mertdev.therawdata.core.utilities.mappers.abstracts.DTOToArticleMappers;
 import com.mertdev.therawdata.entities.concretes.Article;
 
-public class RequestToArticleMappersImpl implements RequestToArticleMappers{
+public class RequestToArticleMappersImpl implements DTOToArticleMappers{
 
 	@Override
 	public Article createArticleToArticle(CreateArticleRequest createArticleRequest) {
