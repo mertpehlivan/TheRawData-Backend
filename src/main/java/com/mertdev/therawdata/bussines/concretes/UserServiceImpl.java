@@ -1,12 +1,15 @@
 package com.mertdev.therawdata.bussines.concretes;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.auth.profile.internal.Profile;
 import com.mertdev.therawdata.bussines.abstracts.UserService;
+import com.mertdev.therawdata.bussines.responses.GetProfileDataResponse;
 import com.mertdev.therawdata.bussines.responses.GetUserResponse;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.DTOToUserMappers;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.UserToDTOMappers;
@@ -20,7 +23,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
 	
 	private final UserRepository userRepository;
@@ -66,5 +69,31 @@ public class UserServiceImpl implements UserService{
 	        throw e;
 	    }
 	}
+
+	@Override
+	public GetProfileDataResponse getDataByUsername(String uniqueName) {
+		try {
+			User user = userRepository.getByUniqueName(uniqueName);
+			
+				GetProfileDataResponse profileResponse = new GetProfileDataResponse();
+				profileResponse.setFirstname(user.getFirstname());
+				profileResponse.setLastname(user.getLastname());
+				profileResponse.setCountry(user.getCountry());
+				profileResponse.setFollowers(user.getFollowers().size());
+				profileResponse.setFollowing(user.getFollowing().size());
+				profileResponse.setUniqueName(user.getUniqueName());
+				profileResponse.setId(user.getId());
+				return profileResponse;
+			
+		} catch (Exception e) {
+			System.err.println(e);
+			return null;
+		}
+		
+	}
+	
+	public List<User> searchByInitials(String initials) {
+        return userRepository.findByInitials("%" + initials + "%");
+    }
 	
 }

@@ -20,7 +20,7 @@ public class SecurityConfig {
 	private final AuthenticationProvider authenticationProvider;
 	@Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		 http.cors().and();
+		http.cors().and();
         http
                 .csrf(csrf->csrf.disable())
                 .authorizeRequests()

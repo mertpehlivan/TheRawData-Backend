@@ -13,5 +13,6 @@ public class CreateCompanyTestReportRequest {
 	private String title;
 	private Date date;
 	private String companyName;
+	private String comment;
 	private List<String> authors;
 }

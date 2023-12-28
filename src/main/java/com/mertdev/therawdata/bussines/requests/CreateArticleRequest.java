@@ -17,5 +17,6 @@ public class CreateArticleRequest {
 	private String issue;
 	private String pages;
 	private String doi;
+	private String comment;
 	private List<String> authors;
 }

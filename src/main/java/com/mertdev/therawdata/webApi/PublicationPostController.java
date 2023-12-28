@@ -1,10 +1,35 @@
 package com.mertdev.therawdata.webApi;
 
+import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.mertdev.therawdata.bussines.abstracts.PublicationPostService;
+import com.mertdev.therawdata.bussines.responses.GetPostResponse;
+import lombok.AllArgsConstructor;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/v1/publicationPost")
+@AllArgsConstructor
 public class PublicationPostController {
-	
+
+    private final PublicationPostService publicationPostService;
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<GetPostResponse>> getAllPost() {
+        List<GetPostResponse> list = publicationPostService.getAllPost();
+        if (list.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        }
+        return ResponseEntity.ok(list);
+    }
+
+    @PostMapping("/{uniqueName}/getAll")
+    public List<GetPostResponse> getAllByUniqueName(@PathVariable String uniqueName) {
+        return publicationPostService.getAllByUniqueName(uniqueName);
+    }
 }

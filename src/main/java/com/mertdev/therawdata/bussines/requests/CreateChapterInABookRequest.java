@@ -19,5 +19,6 @@ public class CreateChapterInABookRequest {
 	private String publisher;
 	private String isbn;
 	private String editor;
+	private String comment;
 	private List<String> authors;
 }

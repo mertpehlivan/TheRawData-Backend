@@ -1,5 +1,6 @@
 package com.mertdev.therawdata.entities.concretes;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +16,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,6 +43,15 @@ public class PublicationPost {
 	
 	@OneToMany(mappedBy="publicationPostId")
     private List<RawDataFile> rawDataFile;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "creation_time", updatable = false)
+    private Date creationTime;
+    
+    @PrePersist
+    protected void onCreate() {
+        creationTime = new Date();
+    }	
 	
 	
 }

@@ -18,5 +18,6 @@ public class CreateConferencePaperRequest {
 	private String location;
 	private String doi;
 	private String pages;
+	private String comment;
 	private List<String> authors;
 }

@@ -4,9 +4,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.DTOToUserMappers;
+import com.mertdev.therawdata.core.utilities.mappers.abstracts.PublicationToResponse;
+import com.mertdev.therawdata.core.utilities.mappers.abstracts.RawDataFileToResponse;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.DTOToArticleMappers;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.UserToDTOMappers;
 import com.mertdev.therawdata.core.utilities.mappers.concretes.DtoToUserMappersImpl;
+import com.mertdev.therawdata.core.utilities.mappers.concretes.PublicationToResponseImpl;
+import com.mertdev.therawdata.core.utilities.mappers.concretes.RawDataFileToResponseImpl;
 import com.mertdev.therawdata.core.utilities.mappers.concretes.RequestToArticleMappersImpl;
 import com.mertdev.therawdata.core.utilities.mappers.concretes.UserToDTOMappersImpl;
 
@@ -24,5 +28,13 @@ public class MappersConfig {
 	@Bean 
 	DTOToUserMappers dtoToUserMappers() {
 		return new DtoToUserMappersImpl();
+	}
+	@Bean
+	PublicationToResponse publicationToResponse() {
+		return new PublicationToResponseImpl();
+	}
+	@Bean
+	RawDataFileToResponse dataFileToResponse() {
+		return new RawDataFileToResponseImpl();
 	}
 }

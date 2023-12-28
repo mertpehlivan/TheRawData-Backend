@@ -1,13 +1,16 @@
 package com.mertdev.therawdata.entities.concretes;
 
-import java.util.List;
+import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.mertdev.therawdata.entities.abstracts.Publication;
+import com.mertdev.therawdata.entities.abstracts.PublicationType;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -16,14 +19,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name = "articles")
-public class Article extends Publication{
+public class Article  extends Publication implements PublicationType{
 
 	private String journalName;
 	private String volume;
 	private String issue;
 	private String pages;
 	private String doi;
-	
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "creation_time", updatable = false)
+    private Date creationTime;
+    
+    @PrePersist
+    protected void onCreate() {
+        creationTime = new Date();
+    }	
 	
 	public String getJournalName() {
 		return journalName;
@@ -55,5 +65,30 @@ public class Article extends Publication{
 	public void setDoi(String doi) {
 		this.doi = doi;
 	}
+
+	@Override
+	public PublicationPost getPublicationPost() {
+		return super.getPublicationPost();
+	}
+	
+	@Override
+	public String toString() {
+		return "Article [journalName=" + journalName + ", volume=" + volume + ", issue=" + issue + ", pages=" + pages
+				+ ", doi=" + doi + "]";
+	}
+
+	public Date getCreationTime() {
+		return creationTime;
+	}
+
+	public void setCreationTime(Date creationTime) {
+		this.creationTime = creationTime;
+	}
+
+	@Override
+	public PublicationType getObject() {
+		return this;
+	}
+
 	
 }

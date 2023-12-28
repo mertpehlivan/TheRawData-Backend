@@ -15,6 +15,7 @@ public class RequestToArticleMappersImpl implements DTOToArticleMappers{
 		article.setPages(createArticleRequest.getPages());
 		article.setTitle(createArticleRequest.getTitle());
 		article.setVolume(createArticleRequest.getVolume());
+		article.setComment(createArticleRequest.getComment());
 		return article;
 	}
 

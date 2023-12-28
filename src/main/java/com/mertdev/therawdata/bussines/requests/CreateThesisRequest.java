@@ -14,5 +14,6 @@ public class CreateThesisRequest {
 	private String degree;
 	private String pages;
 	private String university;
+	private String comment;
 	private List<String> authors;
 }

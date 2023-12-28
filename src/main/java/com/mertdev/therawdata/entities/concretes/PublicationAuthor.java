@@ -16,16 +16,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 public class PublicationAuthor {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	@ManyToOne
-	@JoinColumn(name = "authorId", nullable = false)
-	private User author;
-	
-	@ManyToOne
-	@JoinColumn(name = "publicationId", nullable = false)
-	private Publication publicationId;
-	
-	
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @ManyToOne
+    @JoinColumn(name = "authorId", nullable = false)
+    private User author;
+    
+    @ManyToOne
+    @JoinColumn(name = "publicationId", referencedColumnName = "id")
+    private Publication publication;
 }

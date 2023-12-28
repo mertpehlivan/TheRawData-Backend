@@ -11,5 +11,6 @@ import lombok.Data;
 public class CreateReasearchProjectRequest {
 	private String title;
 	private Date date;
+	private String comment;
 	private List<String> authors;
 }
