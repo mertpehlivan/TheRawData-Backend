@@ -73,8 +73,8 @@ public class Article  extends Publication implements PublicationType{
 	
 	@Override
 	public String toString() {
-		return "Article [journalName=" + journalName + ", volume=" + volume + ", issue=" + issue + ", pages=" + pages
-				+ ", doi=" + doi + "]";
+		return getTitle() + journalName + " " + volume + " " + issue + " " + pages
+				+ " " + doi ;
 	}
 
 	public Date getCreationTime() {

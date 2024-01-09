@@ -1,6 +1,9 @@
 package com.mertdev.therawdata.webApi;
 
 import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,16 +23,21 @@ public class PublicationPostController {
     private final PublicationPostService publicationPostService;
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<GetPostResponse>> getAllPost() {
-        List<GetPostResponse> list = publicationPostService.getAllPost();
+    public ResponseEntity<List<GetPostResponse>> getAllPost(Pageable pageable) {
+    	System.out.println(pageable);
+        List<GetPostResponse> list = publicationPostService.getAllPost(pageable);
         if (list.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
         }
         return ResponseEntity.ok(list);
     }
 
-    @PostMapping("/{uniqueName}/getAll")
+    @GetMapping("/{uniqueName}/getAll")
     public List<GetPostResponse> getAllByUniqueName(@PathVariable String uniqueName) {
         return publicationPostService.getAllByUniqueName(uniqueName);
+    }
+    @GetMapping("/{publicationPostId}")
+    public GetPostResponse getPost(@PathVariable UUID publicationPostId) {
+    	return publicationPostService.getPost(publicationPostId);
     }
 }

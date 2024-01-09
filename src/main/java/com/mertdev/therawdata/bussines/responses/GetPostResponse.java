@@ -18,7 +18,8 @@ public class GetPostResponse {
 	private String creationTime;
 	private String publicationType;
 	private String comment;
+	private String summary;
 	private List<AuthorResponse> authors;
-	private SummaryRawDataFileResponse rawdatafile;
+	private List<SummaryRawDataFileResponse> rawdatafiles;
 	
 }

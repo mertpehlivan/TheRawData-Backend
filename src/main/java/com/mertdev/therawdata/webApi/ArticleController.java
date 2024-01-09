@@ -32,7 +32,7 @@ public class ArticleController {
 	@GetMapping("/{uniqueName}/getAllArticle")
 	public List<GetPostResponse> getAllArticle(@PathVariable String uniqueName){
 		return articleService.getAllArticle(uniqueName);
-		
 	}
+	
 
 }

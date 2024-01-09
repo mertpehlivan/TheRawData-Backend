@@ -9,6 +9,7 @@ import com.mertdev.therawdata.entities.concretes.User;
 
 public interface UserService {
 	public String getCurrentUsername();
+	public User getCurrentUser();
 	public GetUserResponse getUser();
 	public List<GetUserResponse> searchUsers(String firstname,String lastname);
 	public GetProfileDataResponse getDataByUsername(String uniqueName);

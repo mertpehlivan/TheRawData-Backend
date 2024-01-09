@@ -29,7 +29,8 @@ public interface PublicationPostService{
 	public PostIdResponse createPublication(CompanyTestReport companyTestReport);
 	public <T> List<PublicationPostResponse> getAll(List<T> items);
 	public List<PublicationType> getAllPublication();
-	public List<GetPostResponse> getAllPost();
 	public List<GetPostResponse> getAllPost(List<Publication> items);
 	public List<GetPostResponse> getAllByUniqueName(String uniqueName);
+	List<GetPostResponse> getAllPost(Pageable pageable);
+	public GetPostResponse getPost(UUID publicationId);
 }

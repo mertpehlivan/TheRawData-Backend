@@ -27,6 +27,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,8 +39,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="users")
-public class User implements UserDetails{
+@Table(name = "users")
+public class User implements UserDetails {
 	@Id
 	@Column(name = "id", nullable = false)
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -50,74 +51,77 @@ public class User implements UserDetails{
 	private String password;
 	private String country;
 	private String uniqueName;
-	
-	
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_followers",
-            joinColumns = @JoinColumn (name = "following_id"),
-            inverseJoinColumns = @JoinColumn(name = "follower_id"))
-    private Set<User> followers = new HashSet<>();
+	@OneToOne(mappedBy = "user") // Tek bir sepete sahip olacak şekilde değiştirildi
+	private Basket basket;
 
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "user_followers", joinColumns = @JoinColumn(name = "following_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
+	private Set<User> followers = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "followers")
-    private Set<User> following = new HashSet<>();
-	
-	
-	
-	 @CreationTimestamp
-	 private Instant createdOn;
-	
+	@ManyToMany(fetch = FetchType.LAZY, mappedBy = "followers")
+	private Set<User> following = new HashSet<>();
+
+	@CreationTimestamp
+	private Instant createdOn;
+
 	@Enumerated(EnumType.STRING)
 	private Role role;
-	
+
 	@OneToMany(mappedBy = "user")
-	private	List<PublicationPost> publicationPosts;
-	
+	private List<PublicationPost> publicationPosts;
+
 	@OneToMany(mappedBy = "author")
 	private List<PublicationAuthor> publicationAuthor;
-	
+
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return List.of(new SimpleGrantedAuthority(role.name()));
 	}
+
 	@Override
 	public String getPassword() {
 		return password;
 	}
+
 	@Override
 	public String getUsername() {
 		return email;
 	}
+
 	@Override
 	public boolean isAccountNonExpired() {
 		return true;
 	}
+
 	@Override
 	public boolean isAccountNonLocked() {
 		return true;
 	}
+
 	@Override
 	public boolean isCredentialsNonExpired() {
 		return true;
 	}
+
 	@Override
 	public boolean isEnabled() {
 		return true;
 	}
-	 @Override
-	    public boolean equals(Object o) {
-	        if (this == o) return true;
-	        if (o == null || getClass() != o.getClass()) return false;
-	        User user = (User) o;
-	        return id != null && id.equals(user.id);
-	    }
 
-	    @Override
-	    public int hashCode() {
-	        return Objects.hash(id);
-	    }
-	
-	
-	
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		User user = (User) o;
+		return id != null && id.equals(user.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+
 }

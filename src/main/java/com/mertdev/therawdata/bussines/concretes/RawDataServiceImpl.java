@@ -2,6 +2,8 @@ package com.mertdev.therawdata.bussines.concretes;
 
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.mertdev.therawdata.bussines.abstracts.RawDataFileService;
@@ -13,13 +15,11 @@ import com.mertdev.therawdata.entities.concretes.RawData;
 import com.mertdev.therawdata.entities.concretes.RawDataFile;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 @Service
 @AllArgsConstructor
 public class RawDataServiceImpl implements RawDataService{
+	private static final Logger log = LoggerFactory.getLogger(RawDataServiceImpl.class);
 	private final UserService userService;
 	private final AmazonClient amazonClient;
 	private final RawDataFileService dataFileService;
@@ -38,13 +38,15 @@ public class RawDataServiceImpl implements RawDataService{
 		rawData.setComment(createRawDataRequest.getComment());
 		rawData.setRawDataFileId(file);
 		rawData.setRawDataName(rawDataName);
+		rawData.setPrice(createRawDataRequest.getPrice());
 		Long rawDataId = rawDataRepository.save(rawData).getId();
 		
 		s3Service.putObject(
-				"%s/%s/%s/previewImage/%s".formatted(
+				"%s/%s/%s/%s/previewImage/%s".formatted(
 							email,
 							file.getPublicationPostId().getId(),
-							createRawDataRequest.getRawDataFileId(),
+							file.getId(),
+							rawDataId,
 							imageName
 						), 
 				createRawDataRequest
@@ -73,6 +75,36 @@ public class RawDataServiceImpl implements RawDataService{
 	        System.out.println("Hata: Dizi elemanları eksik");
 	        return null;
 	    }
+	}
+	@Override
+	public byte[] getPreviewImage(String previewImageName) {
+		RawData rawData = rawDataRepository.findByPreviewImageName(previewImageName);
+		String email = 
+				rawData.getRawDataFileId()
+				.getPublicationPostId()
+				.getUser()
+				.getEmail();
+		log.info("User email: "+ email);
+		UUID postId = 
+				rawData
+				.getRawDataFileId()
+				.getPublicationPostId()
+				.getId();
+		log.info("Post id: "+ postId.toString());
+		UUID fileId = 
+				rawData
+				.getRawDataFileId()
+				.getId();
+		log.info("File id: "+ fileId.toString());
+		return s3Service.getObject(
+				"%s/%s/%s/%s/previewImage/%s".formatted(
+						email,
+						postId.toString(),
+						fileId.toString(),
+						rawData.getId().toString(),
+						previewImageName.toString()
+					)
+				);
 	}
 
 

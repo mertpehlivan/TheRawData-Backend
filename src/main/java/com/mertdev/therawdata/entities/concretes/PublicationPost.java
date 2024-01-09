@@ -2,6 +2,7 @@ package com.mertdev.therawdata.entities.concretes;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.mertdev.therawdata.entities.abstracts.Publication;
@@ -28,6 +29,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor 
 
 public class PublicationPost {
+	
+	
 	@Id
 	@Column(name = "id", nullable = false)
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -51,7 +54,26 @@ public class PublicationPost {
     @PrePersist
     protected void onCreate() {
         creationTime = new Date();
-    }	
+    }
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PublicationPost other = (PublicationPost) obj;
+		return Objects.equals(creationTime, other.creationTime) && Objects.equals(id, other.id)
+				&& Objects.equals(publication, other.publication) && Objects.equals(rawDataFile, other.rawDataFile)
+				&& Objects.equals(user, other.user);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(creationTime, id, publication, rawDataFile, user);
+	}	
 	
 	
 }

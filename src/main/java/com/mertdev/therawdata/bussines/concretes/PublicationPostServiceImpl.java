@@ -7,10 +7,10 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.mertdev.therawdata.bussines.abstracts.PublicationPostService;
@@ -21,6 +21,7 @@ import com.mertdev.therawdata.bussines.responses.PostIdResponse;
 import com.mertdev.therawdata.bussines.responses.PublicationPostResponse;
 import com.mertdev.therawdata.bussines.responses.SummaryRawDataFileResponse;
 import com.mertdev.therawdata.bussines.responses.SummaryRawDataResponse;
+import com.mertdev.therawdata.core.utilities.mappers.abstracts.PublicationAuthorToResponse;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.PublicationToResponse;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.RawDataFileToResponse;
 import com.mertdev.therawdata.dataAccess.abstracts.PublicationPostRepository;
@@ -49,7 +50,7 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	private final UserService userService;
 	private final PublicationToResponse publicationToResponse;
 	private final RawDataFileToResponse dataFileToResponse;
-
+	private final PublicationAuthorToResponse authorToResponse;
 	@Override
 	public PublicationPost findPost(UUID id) {
 		return repository.getById(id);
@@ -174,24 +175,18 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	}
 
 	@Override
-	public List<GetPostResponse> getAllPost() {
+	public List<GetPostResponse> getAllPost(Pageable pageable) {
 
 		String imageUrl = "https://instagram.fesb10-3.fna.fbcdn.net/v/t51.2885-19/363492081_1011405263192366_6566209395961409989_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fesb10-3.fna.fbcdn.net&_nc_cat=102&_nc_ohc=lnFQWH874UgAX927y_I&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfDymHKijPBRwsqJCm4epSdBkhfp_oJV5T_DsN1d_SqubA&oe=658369C1&_nc_sid=8b3546";
 
-		List<PublicationPost> publications = repository.findAllByOrderByCreationTimeDesc();
+		List<PublicationPost> publications = repository.findAllByOrderByCreationTimeDesc(pageable);
 		List<GetPostResponse> tempPosts = new ArrayList<>();
 		for (PublicationPost publication : publications) {
 			GetPostResponse tempPost = new GetPostResponse();
 			List<AuthorResponse> tempAuthors = new ArrayList<>();
 			for (PublicationAuthor author : publication.getPublication().getPublicationAuthors()) {
-				AuthorResponse tempAuthor = new AuthorResponse();
-				tempAuthor.setFirstname(author.getAuthor().getFirstname());
-				tempAuthor.setLastname(author.getAuthor().getLastname());
-				tempAuthor.setProfileImageUrl(imageUrl);
-
-				tempAuthors.add(tempAuthor);
+				tempAuthors.add(authorToResponse.toResponse(author, imageUrl));
 			}
-
 			tempPost.setAuthors(tempAuthors);
 			tempPost.setCreationTime(timeTage(publication.getCreationTime()));
 			tempPost.setFullname(
@@ -207,13 +202,18 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 			for (RawDataFile file : publication.getRawDataFile()) {
 				SummaryRawDataFileResponse tempRawDataFileResponse = new SummaryRawDataFileResponse();
 				tempRawDataFileResponse.setTitle(file.getName());
+				tempRawDataFileResponse.setId(file.getId());
 				List<SummaryRawDataResponse> rawDataResponses = new ArrayList<>();
 				for (RawData rawData : file.getRawDatas()) {
 					SummaryRawDataResponse tempRawData = new SummaryRawDataResponse();
+					System.out.println(rawData.getId());
+					tempRawData.setId(rawData.getId());
 					tempRawData.setPreviewImageUrl(rawData.getPreviewImageName());
 					tempRawData.setTitle(rawData.getName());
 					tempRawData.setRawDataExtension(exSplit(rawData.getRawDataName()));
 					tempRawData.setRawDataLengt(file.getRawDatas().size());
+					tempRawData.setComment(rawData.getComment());
+					tempRawData.setPrice(rawData.getPrice());
 					rawDataResponses.add(tempRawData);
 				}
 				tempRawDataFileResponse.setRawDatas(rawDataResponses);
@@ -221,7 +221,7 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 				tempRawFiles.add(tempRawDataFileResponse);
 			}
 			System.out.println(tempRawFiles.isEmpty() ? null : tempRawFiles.get(0));
-			tempPost.setRawdatafile(tempRawFiles.isEmpty() ? null : tempRawFiles.get(0));
+			tempPost.setRawdatafiles(tempRawFiles);
 			tempPost.setTitle(publication.getPublication().getTitle());
 			tempPosts.add(tempPost);
 		}
@@ -327,13 +327,16 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 			for (RawDataFile file : publication.getRawDataFile()) {
 				SummaryRawDataFileResponse tempRawDataFileResponse = new SummaryRawDataFileResponse();
 				tempRawDataFileResponse.setTitle(file.getName());
+				tempRawDataFileResponse.setId(file.getId());
 				List<SummaryRawDataResponse> rawDataResponses = new ArrayList<>();
 				for (RawData rawData : file.getRawDatas()) {
 					SummaryRawDataResponse tempRawData = new SummaryRawDataResponse();
+					tempRawData.setId(rawData.getId());
 					tempRawData.setPreviewImageUrl(rawData.getPreviewImageName());
 					tempRawData.setTitle(rawData.getName());
 					tempRawData.setRawDataExtension(exSplit(rawData.getRawDataName()));
 					tempRawData.setRawDataLengt(file.getRawDatas().size());
+					tempRawData.setPrice(rawData.getPrice());
 					rawDataResponses.add(tempRawData);
 				}
 				tempRawDataFileResponse.setRawDatas(rawDataResponses);
@@ -341,7 +344,7 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 				tempRawFiles.add(tempRawDataFileResponse);
 			}
 			System.out.println(tempRawFiles.isEmpty() ? null : tempRawFiles.get(0));
-			tempPost.setRawdatafile(tempRawFiles.isEmpty() ? null : tempRawFiles.get(0));
+			tempPost.setRawdatafiles(tempRawFiles);
 			tempPost.setTitle(publication.getPublication().getTitle());
 			tempPosts.add(tempPost);
 		}
@@ -354,5 +357,55 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		return null;
 	}
 
-	
+	@Override
+	public GetPostResponse getPost(UUID publicationId) {
+
+		String imageUrl = "https://instagram.fesb10-3.fna.fbcdn.net/v/t51.2885-19/363492081_1011405263192366_6566209395961409989_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fesb10-3.fna.fbcdn.net&_nc_cat=102&_nc_ohc=lnFQWH874UgAX927y_I&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfDymHKijPBRwsqJCm4epSdBkhfp_oJV5T_DsN1d_SqubA&oe=658369C1&_nc_sid=8b3546";
+			PublicationPost publication = repository.getById(publicationId);
+			
+			GetPostResponse tempPost = new GetPostResponse();
+			List<AuthorResponse> tempAuthors = new ArrayList<>();
+			for (PublicationAuthor author : publication.getPublication().getPublicationAuthors()) {
+				tempAuthors.add(authorToResponse.toResponse(author, imageUrl));
+			}
+			tempPost.setAuthors(tempAuthors);
+			tempPost.setCreationTime(timeTage(publication.getCreationTime()));
+			tempPost.setFullname(
+					"%s %s".formatted(publication.getUser().getFirstname(), publication.getUser().getLastname()
+
+					));
+			tempPost.setUniqueName(publication.getUser().getUniqueName());
+			tempPost.setUserId(publication.getUser().getId());
+			tempPost.setComment(publication.getPublication().getComment());
+			tempPost.setId(publication.getId());
+			tempPost.setPublicationType(publicationType(publication.getPublication().getObject()));
+			List<SummaryRawDataFileResponse> tempRawFiles = new ArrayList<>();
+			for (RawDataFile file : publication.getRawDataFile()) {
+				SummaryRawDataFileResponse tempRawDataFileResponse = new SummaryRawDataFileResponse();
+				tempRawDataFileResponse.setTitle(file.getName());
+				tempRawDataFileResponse.setId(publicationId);
+				List<SummaryRawDataResponse> rawDataResponses = new ArrayList<>();
+				for (RawData rawData : file.getRawDatas()) {
+					SummaryRawDataResponse tempRawData = new SummaryRawDataResponse();
+					tempRawData.setId(rawData.getId());
+					tempRawData.setPreviewImageUrl(rawData.getPreviewImageName());
+					tempRawData.setTitle(rawData.getName());
+					tempRawData.setRawDataExtension(exSplit(rawData.getRawDataName()));
+					tempRawData.setRawDataLengt(file.getRawDatas().size());
+					tempRawData.setComment(rawData.getComment());
+					tempRawData.setPrice(rawData.getPrice());
+					rawDataResponses.add(tempRawData);
+				}
+				tempRawDataFileResponse.setRawDatas(rawDataResponses);
+				tempRawDataFileResponse.setFilesLenght(publication.getRawDataFile().size());
+				tempRawFiles.add(tempRawDataFileResponse);
+			}
+			System.out.println(tempRawFiles.isEmpty() ? null : tempRawFiles.get(0));
+			tempPost.setRawdatafiles(tempRawFiles);
+			tempPost.setTitle(publication.getPublication().getTitle());
+		
+		
+		return tempPost;
+	}
+
 }

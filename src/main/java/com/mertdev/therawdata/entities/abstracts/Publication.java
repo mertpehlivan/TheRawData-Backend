@@ -1,6 +1,7 @@
 package com.mertdev.therawdata.entities.abstracts;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.mertdev.therawdata.entities.concretes.PublicationAuthor;
@@ -26,6 +27,8 @@ import lombok.NoArgsConstructor;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "publication_type")
 public abstract class Publication {
+	
+	
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -41,4 +44,23 @@ public abstract class Publication {
     private List<PublicationAuthor> publicationAuthors;
     
     public abstract PublicationType getObject();
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Publication other = (Publication) obj;
+		return Objects.equals(comment, other.comment) && Objects.equals(id, other.id)
+				&& Objects.equals(publicationAuthors, other.publicationAuthors)
+				&& Objects.equals(publicationPost, other.publicationPost) && Objects.equals(title, other.title);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(comment, id, publicationAuthors, publicationPost, title);
+	}
 }

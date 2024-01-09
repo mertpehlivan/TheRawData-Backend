@@ -15,6 +15,6 @@ public class CreateRawDataRequest {
 	private MultipartFile image;
     private String name;
     private String comment;
-    private String price;
+    private int price;
     private MultipartFile rawData;
 }

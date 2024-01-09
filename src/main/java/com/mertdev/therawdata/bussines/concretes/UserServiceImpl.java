@@ -95,5 +95,10 @@ public class UserServiceImpl implements UserService{
 	public List<User> searchByInitials(String initials) {
         return userRepository.findByInitials("%" + initials + "%");
     }
+
+	@Override
+	public User getCurrentUser() {
+		return userRepository.findByEmail(getCurrentUsername());
+	}
 	
 }
