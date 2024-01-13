@@ -9,11 +9,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 public class PublicationAuthor {
     @Id
@@ -27,4 +29,7 @@ public class PublicationAuthor {
     @ManyToOne
     @JoinColumn(name = "publicationId", referencedColumnName = "id")
     private Publication publication;
+    
+    @Builder.Default
+    private Boolean status = false;
 }

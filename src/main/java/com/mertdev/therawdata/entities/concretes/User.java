@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -51,7 +52,13 @@ public class User implements UserDetails {
 	private String password;
 	private String country;
 	private String uniqueName;
-
+	private String profileImageName;
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invitations> ınvitations;
+	
 	@OneToOne(mappedBy = "user") // Tek bir sepete sahip olacak şekilde değiştirildi
 	private Basket basket;
 

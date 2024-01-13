@@ -17,4 +17,5 @@ public class GetProfileDataResponse {
 	private String uniqueName;
 	private int followers;
 	private int following;
+	private String profileImageUrl;
 }

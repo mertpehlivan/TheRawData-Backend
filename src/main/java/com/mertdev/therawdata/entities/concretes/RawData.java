@@ -46,4 +46,11 @@ public class RawData {
 
 	    return result;
 	}
+
+	@Override
+	public String toString() {
+		return "RawData [id=" + id + ", previewImageName=" + previewImageName + ", name=" + name + ", comment="
+				+ comment + ", rawDataName=" + rawDataName + ", price=" + price + ", rawDataFileId=" + rawDataFileId
+				+ ", carts=" + carts + "]";
+	}
 }

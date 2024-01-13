@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mertdev.therawdata.bussines.abstracts.RawDataService;
+import com.mertdev.therawdata.bussines.concretes.S3Service;
 
 import lombok.AllArgsConstructor;
 
@@ -14,10 +15,18 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ImageController {
 	private final RawDataService rawDataService;
-
+	private final S3Service s3Service;
 	@GetMapping("previewImage/{imageName}")
 	public byte[] getPreviewImage(@PathVariable String imageName) {
 		
 		return rawDataService.getPreviewImage(imageName);
 	}
+	@GetMapping("profileImage/{imageName}")
+	public byte[] getProfileImage(@PathVariable String imageName) {
+		
+		return s3Service.getObject(
+				"profileImage/%s".formatted(imageName)
+				);
+	}
+	
 }

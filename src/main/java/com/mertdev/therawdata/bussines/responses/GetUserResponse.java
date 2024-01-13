@@ -11,9 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GetUserResponse{
 	private UUID id;
+	private String uniqueName;
 	private String firstname;
 	private String lastname;
 	private String email;
 	private String country;
+	private String profileImageName;
 	
 }

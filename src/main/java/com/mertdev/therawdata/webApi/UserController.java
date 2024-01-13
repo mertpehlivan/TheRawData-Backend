@@ -33,7 +33,6 @@ public class UserController {
 	private final UserRepository userRepository;
 
 	@GetMapping("/get-user")
-	@CrossOrigin(origins = "http://localhost:3000")
 	public GetUserResponse getUser() {
 		return userService.getUser();
 	}
@@ -57,92 +56,22 @@ public class UserController {
 	}
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping("/follow/{followingId}")
-	public ResponseEntity<String> followUser(@PathVariable UUID followingId) {
-		try {
-			String email = userService.getCurrentUsername();
-			User follower = userRepository.findByEmail(email);
-
-			if (follower == null) {
-				throw new RuntimeException("Follower not found with email: " + email);
-			}
-
-			User following = userRepository.findById(followingId)
-					.orElseThrow(() -> new RuntimeException("Following user not found with id: " + followingId));
-
-			if (follower.getFollowing().contains(following)) {
-				throw new RuntimeException(
-						"User with id " + follower.getId() + " is already following user with id " + followingId);
-			}
-
-			follower.getFollowing().add(following);
-			following.getFollowers().add(follower);
-
-			userRepository.save(follower);
-			userRepository.save(following);
-
-			return ResponseEntity
-					.ok("User with id " + follower.getId() + " is now following user with id " + followingId);
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Follow operation failed: " + e.getMessage());
-		}
+	public void followUser(@PathVariable UUID followingId) {
+		userService.followUser(followingId);
 	}
 
 	@PostMapping("/unfollow/{followingId}")
-	public ResponseEntity<String> unfollowUser(@PathVariable UUID followingId) {
+	public void unfollowUser(@PathVariable UUID followingId) {
 		try {
-			String email = userService.getCurrentUsername();
-			User follower = userRepository.findByEmail(email);
-
-			if (follower == null) {
-				throw new RuntimeException("Follower not found with email: " + email);
-			}
-
-			User following = userRepository.findById(followingId)
-					.orElseThrow(() -> new RuntimeException("Following user not found with id: " + followingId));
-
-			if (follower.getId().equals(following.getId())) {
-				throw new RuntimeException("Cannot unfollow yourself.");
-			}
-
-			if (!follower.getFollowing().contains(following)) {
-				throw new RuntimeException(
-						"User with id " + follower.getId() + " is not following user with id " + followingId);
-			}
-
-			follower.getFollowing().remove(following);
-			following.getFollowers().remove(follower);
-
-			userRepository.save(follower);
-			userRepository.save(following);
-
-			return ResponseEntity
-					.ok("User with id " + follower.getId() + " is no longer following user with id " + followingId);
+			userService.unFollowing(followingId);
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body("Unfollow operation failed: " + e.getMessage());
+			System.err.println(e);
 		}
 	}
 
 	@GetMapping("/isFollowing/{followingId}")
 	public ResponseEntity<Boolean> isFollowingUser(@PathVariable UUID followingId) {
-		try {
-			String email = userService.getCurrentUsername();
-			User follower = userRepository.findByEmail(email);
-
-			if (follower.getId().equals(followingId)) {
-				return ResponseEntity.ok(false);
-			}
-
-			User following = userRepository.findById(followingId)
-					.orElseThrow(() -> new RuntimeException("Following user not found with id: " + followingId));
-
-			boolean isFollowing = follower.getFollowing().contains(following);
-
-			return ResponseEntity.ok(isFollowing);
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
-		}
+		return ResponseEntity.ok(userService.isFollowing(followingId));
 	}
 
 }

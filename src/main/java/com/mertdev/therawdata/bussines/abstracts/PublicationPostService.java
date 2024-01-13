@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.mertdev.therawdata.bussines.requests.CreateThesisRequest;
 import com.mertdev.therawdata.bussines.responses.GetPostResponse;
 import com.mertdev.therawdata.bussines.responses.PostIdResponse;
 import com.mertdev.therawdata.bussines.responses.PublicationPostResponse;
@@ -24,7 +25,7 @@ public interface PublicationPostService{
 	public PostIdResponse createPublication(Article article);
 	public PostIdResponse createPublication(ChapterInBook chapterInBook);
 	public PostIdResponse createPublication(ConferencePaper conferencePaper);
-	public PostIdResponse createPublication(Thesis thesis);
+	public PostIdResponse createPublication(Thesis thesis,CreateThesisRequest createThesisRequest);
 	public PostIdResponse createPublication(ResearchProject reasearchProject);
 	public PostIdResponse createPublication(CompanyTestReport companyTestReport);
 	public <T> List<PublicationPostResponse> getAll(List<T> items);

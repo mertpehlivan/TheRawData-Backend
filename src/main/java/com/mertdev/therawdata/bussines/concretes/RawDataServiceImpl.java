@@ -53,10 +53,11 @@ public class RawDataServiceImpl implements RawDataService{
 					.getImage()
 					.getBytes());
 		s3Service.putObject(
-				"%s/%s/%s/rawData/%s".formatted(
+				"%s/%s/%s/%s/rawData/%s".formatted(
 							email,
 							file.getPublicationPostId().getId(),
-							createRawDataRequest.getRawDataFileId(),
+							file.getId(),
+							rawDataId,
 							rawDataName
 						), 
 				createRawDataRequest
@@ -66,13 +67,13 @@ public class RawDataServiceImpl implements RawDataService{
 		
 	}
 	private String exSplit(String text) {
-	    String[] temp = text.split("\\.");
+	    int lastDotIndex = text.lastIndexOf('.');
 	    
-	    if (temp.length > 1) {
-	        System.out.println(temp[1]);
-	        return temp[1];
+	    if (lastDotIndex != -1) {
+	        System.out.println(text.substring(lastDotIndex + 1));
+	        return text.substring(lastDotIndex + 1);
 	    } else {
-	        System.out.println("Hata: Dizi elemanları eksik");
+	        System.out.println("Hata: Nokta bulunamadı");
 	        return null;
 	    }
 	}

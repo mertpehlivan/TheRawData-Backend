@@ -14,6 +14,7 @@ public class GetPostResponse {
 	private UUID userId;
 	private String fullname;
 	private String uniqueName;
+	private String profileImage;
 	private String title;
 	private String creationTime;
 	private String publicationType;

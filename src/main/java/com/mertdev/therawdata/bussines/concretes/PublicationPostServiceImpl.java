@@ -8,15 +8,20 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.mertdev.therawdata.bussines.abstracts.PublicationPostService;
 import com.mertdev.therawdata.bussines.abstracts.UserService;
+import com.mertdev.therawdata.bussines.requests.CreateThesisRequest;
 import com.mertdev.therawdata.bussines.responses.AuthorResponse;
 import com.mertdev.therawdata.bussines.responses.GetPostResponse;
+import com.mertdev.therawdata.bussines.responses.InvitationsResponse;
+import com.mertdev.therawdata.bussines.responses.NotificationResponse;
 import com.mertdev.therawdata.bussines.responses.PostIdResponse;
 import com.mertdev.therawdata.bussines.responses.PublicationPostResponse;
 import com.mertdev.therawdata.bussines.responses.SummaryRawDataFileResponse;
@@ -24,6 +29,8 @@ import com.mertdev.therawdata.bussines.responses.SummaryRawDataResponse;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.PublicationAuthorToResponse;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.PublicationToResponse;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.RawDataFileToResponse;
+import com.mertdev.therawdata.dataAccess.abstracts.InvitationRepository;
+import com.mertdev.therawdata.dataAccess.abstracts.NotificationRepository;
 import com.mertdev.therawdata.dataAccess.abstracts.PublicationPostRepository;
 import com.mertdev.therawdata.dataAccess.abstracts.UserRepository;
 import com.mertdev.therawdata.entities.abstracts.Publication;
@@ -32,6 +39,8 @@ import com.mertdev.therawdata.entities.concretes.Article;
 import com.mertdev.therawdata.entities.concretes.ChapterInBook;
 import com.mertdev.therawdata.entities.concretes.CompanyTestReport;
 import com.mertdev.therawdata.entities.concretes.ConferencePaper;
+import com.mertdev.therawdata.entities.concretes.Invitations;
+import com.mertdev.therawdata.entities.concretes.Notification;
 import com.mertdev.therawdata.entities.concretes.PublicationAuthor;
 import com.mertdev.therawdata.entities.concretes.PublicationPost;
 import com.mertdev.therawdata.entities.concretes.RawData;
@@ -51,6 +60,10 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	private final PublicationToResponse publicationToResponse;
 	private final RawDataFileToResponse dataFileToResponse;
 	private final PublicationAuthorToResponse authorToResponse;
+	private final NotificationRepository notificationRepository;
+	private final SimpMessagingTemplate messagingTemplate;
+	private final InvitationRepository invitationRepository;
+
 	@Override
 	public PublicationPost findPost(UUID id) {
 		return repository.getById(id);
@@ -64,6 +77,9 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(article);
 		publicationPost.setUser(user);
 		PublicationPost data = repository.save(publicationPost);
+		
+		sendNotificationToUser(user, data.getPublication().getTitle(),
+				"%s %s".formatted(user.getFirstname(), user.getLastname()),data.getId());
 		PostIdResponse idResponse = new PostIdResponse();
 		idResponse.setId(data.getId());
 		return idResponse;
@@ -77,6 +93,9 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(chapterInBook);
 		publicationPost.setUser(user);
 		PublicationPost data = repository.save(publicationPost);
+		
+		sendNotificationToUser(user, data.getPublication().getTitle(),
+				"%s %s".formatted(user.getFirstname(), user.getLastname()),data.getId());
 		PostIdResponse idResponse = new PostIdResponse();
 		idResponse.setId(data.getId());
 		return idResponse;
@@ -91,23 +110,35 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(conferencePaper);
 		publicationPost.setUser(user);
 		PublicationPost data = repository.save(publicationPost);
+		
+		sendNotificationToUser(user, data.getPublication().getTitle(),
+				"%s %s".formatted(user.getFirstname(), user.getLastname()),data.getId());
 		PostIdResponse idResponse = new PostIdResponse();
 		idResponse.setId(data.getId());
 		return idResponse;
 	}
 
 	@Override
-	public PostIdResponse createPublication(Thesis thesis) {
+	public PostIdResponse createPublication(Thesis thesis,CreateThesisRequest createThesisRequest) {
 		String email = userService.getCurrentUsername();
 		User user = userRepository.findAllByEmail(email).orElseThrow();
 		PublicationPost publicationPost = new PublicationPost();
 		publicationPost.setPublication(thesis);
 		publicationPost.setUser(user);
 		PublicationPost data = repository.save(publicationPost);
+
+		sendNotificationToUser(user, data.getPublication().getTitle(),
+				"%s %s".formatted(user.getFirstname(), user.getLastname()),data.getId());
+		
+		sendToInvitations(data,createThesisRequest.getAuthors());
+		
+		
 		PostIdResponse idResponse = new PostIdResponse();
 		idResponse.setId(data.getId());
 		return idResponse;
 	}
+
+	
 
 	@Override
 	public PostIdResponse createPublication(ResearchProject reasearchProject) {
@@ -117,6 +148,9 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(reasearchProject);
 		publicationPost.setUser(user);
 		PublicationPost data = repository.save(publicationPost);
+		
+		sendNotificationToUser(user, data.getPublication().getTitle(),
+				"%s %s".formatted(user.getFirstname(), user.getLastname()),data.getId());
 		PostIdResponse idResponse = new PostIdResponse();
 		idResponse.setId(data.getId());
 		return idResponse;
@@ -130,11 +164,76 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(companyTestReport);
 		publicationPost.setUser(user);
 		PublicationPost data = repository.save(publicationPost);
+		
+		sendNotificationToUser(user, data.getPublication().getTitle(),
+				"%s %s".formatted(user.getFirstname(), user.getLastname()),data.getId());
 		PostIdResponse idResponse = new PostIdResponse();
 		idResponse.setId(data.getId());
 		return idResponse;
 	}
+	private void sendNotificationToUser(User user, String title, String fullName, UUID publicationId) {
+		for (User tempUser : user.getFollowers()) {
+			
+			
+			String destination = "/topic/%s/notifications".formatted(tempUser.getId());
+			NotificationResponse notificationResponse = new NotificationResponse();
+			notificationResponse.setContent("The author you follow has published a thesis titled ");
+			notificationResponse.setFullName(fullName);
+			notificationResponse.setPublicationLink("/publications/%s".formatted(publicationId));
+			notificationResponse.setPublicationTitle(title);
+			notificationResponse.setUserLink("/%s".formatted(user.getUniqueName()));
+			notificationResponse.setType("publication");
+			notificationResponse.setStatus(false);
+			messagingTemplate.convertAndSend(destination, notificationResponse);
+			Notification notification = new Notification();
+			notification.setContent("The author you follow has published a thesis titled ");
+			notification.setFullName(fullName);
+			notification.setPublicationLink("/publications/%s".formatted(publicationId));
+			notification.setPublicationTitle(title);
+			notification.setUserLink("/%s".formatted(user.getUniqueName()));
+			notification.setType("publication");
+			notification.setUser(tempUser);
+			notification.setStatus(false);
+			
+			notificationRepository.save(notification);
+		}
+		
 
+	}
+	private void sendToInvitations(PublicationPost data,List<String> authors) {
+		for (String author : authors) {
+			Optional<User> user = userRepository.findById(UUID.fromString(author));
+			InvitationsResponse invitationsResponse = new InvitationsResponse();
+			
+			Invitations invitation = new Invitations();
+			invitation.setAuthorId(null);
+			invitation.setFullName("%s %s".formatted(data.getUser().getFirstname(),data.getUser().getLastname()));
+			invitation.setPublicationUrl("/publications/%s".formatted(data.getId()));
+			invitation.setStatus(null);
+			invitation.setTitle(data.getPublication().getTitle());
+			invitation.setUser(user.get());
+			invitation.setUserUrl("/%s".formatted(data.getUser().getUniqueName()));
+			invitation.setContant("Mehmet Akın Added you as the author in his publication titled 'Walking Car Acceleration.' Would you like to share this on your page?");
+			Invitations invitationSaved = invitationRepository.save(invitation);
+
+			String destination = "/topic/%s/invitations".formatted(author);
+			invitationsResponse.setId(invitationSaved.getId());
+			invitationsResponse.setTitle(data.getPublication().getTitle());
+			invitationsResponse.setFullName("%s %s".formatted(data.getUser().getFirstname(),data.getUser().getLastname()));
+			invitationsResponse.setUserId(UUID.fromString(author));
+			invitationsResponse.setPublicationUrl(
+					"/publications/%s".formatted(data.getId()));
+			invitationsResponse.setContant(
+					"Mehmet Akın Added you as the author in his publication titled 'Walking Car Acceleration.' Would you like to share this on your page?");
+			invitationsResponse.setUserUrl("/%s".formatted(data.getUser().getUniqueName()));
+			
+			
+			
+			
+			messagingTemplate.convertAndSend(destination, invitationsResponse);
+
+		}
+	}
 	@Override
 	public <T> List<PublicationPostResponse> getAll(List<T> items) {
 		List<PublicationPostResponse> response = new ArrayList<PublicationPostResponse>();
@@ -177,15 +276,13 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	@Override
 	public List<GetPostResponse> getAllPost(Pageable pageable) {
 
-		String imageUrl = "https://instagram.fesb10-3.fna.fbcdn.net/v/t51.2885-19/363492081_1011405263192366_6566209395961409989_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fesb10-3.fna.fbcdn.net&_nc_cat=102&_nc_ohc=lnFQWH874UgAX927y_I&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfDymHKijPBRwsqJCm4epSdBkhfp_oJV5T_DsN1d_SqubA&oe=658369C1&_nc_sid=8b3546";
-
 		List<PublicationPost> publications = repository.findAllByOrderByCreationTimeDesc(pageable);
 		List<GetPostResponse> tempPosts = new ArrayList<>();
 		for (PublicationPost publication : publications) {
 			GetPostResponse tempPost = new GetPostResponse();
 			List<AuthorResponse> tempAuthors = new ArrayList<>();
 			for (PublicationAuthor author : publication.getPublication().getPublicationAuthors()) {
-				tempAuthors.add(authorToResponse.toResponse(author, imageUrl));
+				tempAuthors.add(authorToResponse.toResponse(author, author.getAuthor().getProfileImageName()));
 			}
 			tempPost.setAuthors(tempAuthors);
 			tempPost.setCreationTime(timeTage(publication.getCreationTime()));
@@ -193,6 +290,7 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 					"%s %s".formatted(publication.getUser().getFirstname(), publication.getUser().getLastname()
 
 					));
+			tempPost.setProfileImage(publication.getUser().getProfileImageName());
 			tempPost.setUniqueName(publication.getUser().getUniqueName());
 			tempPost.setUserId(publication.getUser().getId());
 			tempPost.setComment(publication.getPublication().getComment());
@@ -280,21 +378,20 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	}
 
 	private String exSplit(String text) {
-		String[] temp = text.split("\\.");
-
-		if (temp.length > 1) {
-			System.out.println(temp[1]);
-			return temp[1];
-		} else {
-			System.out.println("Hata: Dizi elemanları eksik");
-			return null;
-		}
+	    int lastDotIndex = text.lastIndexOf('.');
+	    
+	    if (lastDotIndex != -1) {
+	        System.out.println(text.substring(lastDotIndex + 1));
+	        return text.substring(lastDotIndex + 1);
+	    } else {
+	        System.out.println("Hata: Nokta bulunamadı");
+	        return null;
+	    }
 	}
 
 	@Override
 	public List<GetPostResponse> getAllPost(List<Publication> items) {
-		String imageUrl = "https://instagram.fesb10-3.fna.fbcdn.net/v/t51.2885-19/363492081_1011405263192366_6566209395961409989_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fesb10-3.fna.fbcdn.net&_nc_cat=102&_nc_ohc=lnFQWH874UgAX927y_I&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfDymHKijPBRwsqJCm4epSdBkhfp_oJV5T_DsN1d_SqubA&oe=658369C1&_nc_sid=8b3546";
-
+		
 		List<PublicationPost> publications = new ArrayList<>();
 		for (Publication item : items) {
 			publications.add(item.getPublicationPost());
@@ -307,11 +404,11 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 				AuthorResponse tempAuthor = new AuthorResponse();
 				tempAuthor.setFirstname(author.getAuthor().getFirstname());
 				tempAuthor.setLastname(author.getAuthor().getLastname());
-				tempAuthor.setProfileImageUrl(imageUrl);
+				tempAuthor.setProfileImageUrl(author.getAuthor().getProfileImageName());
 
 				tempAuthors.add(tempAuthor);
 			}
-
+			tempPost.setProfileImage(publication.getUser().getProfileImageName());
 			tempPost.setAuthors(tempAuthors);
 			tempPost.setCreationTime(timeTage(publication.getCreationTime()));
 			tempPost.setFullname(
@@ -353,58 +450,61 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 
 	@Override
 	public List<GetPostResponse> getAllByUniqueName(String uniqueName) {
-		// TODO Auto-generated method stub
-		return null;
+		User user = userRepository.getByUniqueName(uniqueName);
+		List<Publication> tempPublications= new ArrayList<>();
+		for(PublicationPost post : user.getPublicationPosts()) {
+			tempPublications.add(post.getPublication());
+		}
+		
+		return getAllPost(tempPublications);
 	}
 
 	@Override
 	public GetPostResponse getPost(UUID publicationId) {
 
 		String imageUrl = "https://instagram.fesb10-3.fna.fbcdn.net/v/t51.2885-19/363492081_1011405263192366_6566209395961409989_n.jpg?stp=dst-jpg_s320x320&_nc_ht=instagram.fesb10-3.fna.fbcdn.net&_nc_cat=102&_nc_ohc=lnFQWH874UgAX927y_I&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfDymHKijPBRwsqJCm4epSdBkhfp_oJV5T_DsN1d_SqubA&oe=658369C1&_nc_sid=8b3546";
-			PublicationPost publication = repository.getById(publicationId);
-			
-			GetPostResponse tempPost = new GetPostResponse();
-			List<AuthorResponse> tempAuthors = new ArrayList<>();
-			for (PublicationAuthor author : publication.getPublication().getPublicationAuthors()) {
-				tempAuthors.add(authorToResponse.toResponse(author, imageUrl));
-			}
-			tempPost.setAuthors(tempAuthors);
-			tempPost.setCreationTime(timeTage(publication.getCreationTime()));
-			tempPost.setFullname(
-					"%s %s".formatted(publication.getUser().getFirstname(), publication.getUser().getLastname()
+		PublicationPost publication = repository.getById(publicationId);
 
-					));
-			tempPost.setUniqueName(publication.getUser().getUniqueName());
-			tempPost.setUserId(publication.getUser().getId());
-			tempPost.setComment(publication.getPublication().getComment());
-			tempPost.setId(publication.getId());
-			tempPost.setPublicationType(publicationType(publication.getPublication().getObject()));
-			List<SummaryRawDataFileResponse> tempRawFiles = new ArrayList<>();
-			for (RawDataFile file : publication.getRawDataFile()) {
-				SummaryRawDataFileResponse tempRawDataFileResponse = new SummaryRawDataFileResponse();
-				tempRawDataFileResponse.setTitle(file.getName());
-				tempRawDataFileResponse.setId(publicationId);
-				List<SummaryRawDataResponse> rawDataResponses = new ArrayList<>();
-				for (RawData rawData : file.getRawDatas()) {
-					SummaryRawDataResponse tempRawData = new SummaryRawDataResponse();
-					tempRawData.setId(rawData.getId());
-					tempRawData.setPreviewImageUrl(rawData.getPreviewImageName());
-					tempRawData.setTitle(rawData.getName());
-					tempRawData.setRawDataExtension(exSplit(rawData.getRawDataName()));
-					tempRawData.setRawDataLengt(file.getRawDatas().size());
-					tempRawData.setComment(rawData.getComment());
-					tempRawData.setPrice(rawData.getPrice());
-					rawDataResponses.add(tempRawData);
-				}
-				tempRawDataFileResponse.setRawDatas(rawDataResponses);
-				tempRawDataFileResponse.setFilesLenght(publication.getRawDataFile().size());
-				tempRawFiles.add(tempRawDataFileResponse);
+		GetPostResponse tempPost = new GetPostResponse();
+		List<AuthorResponse> tempAuthors = new ArrayList<>();
+		for (PublicationAuthor author : publication.getPublication().getPublicationAuthors()) {
+			tempAuthors.add(authorToResponse.toResponse(author, imageUrl));
+		}
+		tempPost.setAuthors(tempAuthors);
+		tempPost.setCreationTime(timeTage(publication.getCreationTime()));
+		tempPost.setFullname("%s %s".formatted(publication.getUser().getFirstname(), publication.getUser().getLastname()
+
+		));
+		tempPost.setUniqueName(publication.getUser().getUniqueName());
+		tempPost.setUserId(publication.getUser().getId());
+		tempPost.setComment(publication.getPublication().getComment());
+		tempPost.setId(publication.getId());
+		tempPost.setPublicationType(publicationType(publication.getPublication().getObject()));
+		List<SummaryRawDataFileResponse> tempRawFiles = new ArrayList<>();
+		for (RawDataFile file : publication.getRawDataFile()) {
+			SummaryRawDataFileResponse tempRawDataFileResponse = new SummaryRawDataFileResponse();
+			tempRawDataFileResponse.setTitle(file.getName());
+			tempRawDataFileResponse.setId(file.getId());
+			List<SummaryRawDataResponse> rawDataResponses = new ArrayList<>();
+			for (RawData rawData : file.getRawDatas()) {
+				SummaryRawDataResponse tempRawData = new SummaryRawDataResponse();
+				tempRawData.setId(rawData.getId());
+				tempRawData.setPreviewImageUrl(rawData.getPreviewImageName());
+				tempRawData.setTitle(rawData.getName());
+				tempRawData.setRawDataExtension(exSplit(rawData.getRawDataName()));
+				tempRawData.setRawDataLengt(file.getRawDatas().size());
+				tempRawData.setComment(rawData.getComment());
+				tempRawData.setPrice(rawData.getPrice());
+				rawDataResponses.add(tempRawData);
 			}
-			System.out.println(tempRawFiles.isEmpty() ? null : tempRawFiles.get(0));
-			tempPost.setRawdatafiles(tempRawFiles);
-			tempPost.setTitle(publication.getPublication().getTitle());
-		
-		
+			tempRawDataFileResponse.setRawDatas(rawDataResponses);
+			tempRawDataFileResponse.setFilesLenght(publication.getRawDataFile().size());
+			tempRawFiles.add(tempRawDataFileResponse);
+		}
+		System.out.println(tempRawFiles.isEmpty() ? null : tempRawFiles.get(0));
+		tempPost.setRawdatafiles(tempRawFiles);
+		tempPost.setTitle(publication.getPublication().getTitle());
+
 		return tempPost;
 	}
 

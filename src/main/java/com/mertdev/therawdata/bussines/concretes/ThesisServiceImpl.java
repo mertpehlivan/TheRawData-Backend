@@ -32,7 +32,7 @@ public class ThesisServiceImpl implements ThesisService{
 		thesis.setTitle(createThesisRequest.getTitle());
 		thesis.setUniversity(createThesisRequest.getUniversity());
 		thesis.setComment(createThesisRequest.getComment());
-		PostIdResponse id = postService.createPublication(thesis);
+		PostIdResponse id = postService.createPublication(thesis,createThesisRequest);
 		publicationAuthorService.createAuthor(createThesisRequest.getAuthors(), thesis);
 		return id;
 	}

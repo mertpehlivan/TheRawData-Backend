@@ -1,6 +1,9 @@
 package com.mertdev.therawdata.bussines.abstracts;
 
 import java.util.List;
+import java.util.UUID;
+
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.mertdev.therawdata.bussines.requests.GetByUsernameRequest;
 import com.mertdev.therawdata.bussines.responses.GetProfileDataResponse;
@@ -14,4 +17,7 @@ public interface UserService {
 	public List<GetUserResponse> searchUsers(String firstname,String lastname);
 	public GetProfileDataResponse getDataByUsername(String uniqueName);
 	public List<User> searchByInitials(String initials);
+	public Boolean isFollowing(UUID followingId);
+	public void unFollowing(UUID followingId);
+	public void followUser(@PathVariable UUID followingId);
 }
