@@ -5,8 +5,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: mertpehlivandev54@gmail.com
-    password: pwbb mhjg snib ehtg
+    username: [email]
+    password: [password]
     properties: 
       mail:
         smtp:
@@ -17,9 +17,9 @@ spring:
           
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://rawdatalibraryms.c8p3thzjg7tm.eu-west-1.rds.amazonaws.com:5432/rawdatalibraryMS
+    url: [url]
     username: postgres
-    password: 54Ra290-+
+    password: [password]
     hikari:
       data-source-properties:
         serverTimezone: UTC
@@ -41,7 +41,7 @@ spring:
 
 s3:
   endpointUrl: https://s3.amazonaws.com
-  accessKeyId: AKIASJSUFYUKQQGIXM63
-  secretKey: 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
+  accessKeyId: [accessKeyId]
+  secretKey: [secretKey]
   bucketName: baligongbuckettest
   region: eu-west-1
