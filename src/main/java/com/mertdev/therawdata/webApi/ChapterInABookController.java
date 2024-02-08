@@ -2,6 +2,7 @@ package com.mertdev.therawdata.webApi;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +14,6 @@ import com.mertdev.therawdata.bussines.abstracts.ChapterInABookService;
 import com.mertdev.therawdata.bussines.requests.CreateChapterInABookRequest;
 import com.mertdev.therawdata.bussines.responses.GetPostResponse;
 import com.mertdev.therawdata.bussines.responses.PostIdResponse;
-import com.mertdev.therawdata.bussines.responses.PublicationPostResponse;
 
 import lombok.AllArgsConstructor;
 
@@ -30,8 +30,8 @@ public class ChapterInABookController {
 	}
 	
 	@GetMapping("{uniqueName}/getAllChapterInABook")
-	public List<GetPostResponse> getAllChapterInABook(@PathVariable String uniqueName){
+	public List<GetPostResponse> getAllChapterInABook(@PathVariable String uniqueName,Pageable pageable){
 		
-		return chapterInABookService.getAllChapterInABook(uniqueName);
+		return chapterInABookService.getAllChapterInABook(uniqueName,pageable);
 	}
 }

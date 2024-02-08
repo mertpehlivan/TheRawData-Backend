@@ -38,6 +38,7 @@ public class InvitationServiceImpl implements InvitationService {
 			invitationsResponse.setPublicationUrl(invitation.getPublicationUrl());
 			invitationsResponse.setTitle(invitation.getTitle());
 			invitationsResponse.setUserUrl(invitation.getUserUrl());
+			invitationsResponse.setPublicationId(invitation.getPublicationId());
 			
 			invitationsResponses.add(invitationsResponse);
 		}

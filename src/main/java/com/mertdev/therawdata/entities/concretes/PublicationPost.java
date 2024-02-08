@@ -40,9 +40,14 @@ public class PublicationPost {
 	@JoinColumn(name="ownerId")
 	private User user;
 	
+	private String publicationType;
+	
 	@OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "publicationId", referencedColumnName = "id")
 	private Publication publication;
+	
+	@OneToMany(mappedBy="publicationPost")
+    private List<Share> shares;
 	
 	@OneToMany(mappedBy="publicationPostId")
     private List<RawDataFile> rawDataFile;
@@ -73,6 +78,13 @@ public class PublicationPost {
 	@Override
 	public int hashCode() {
 		return Objects.hash(creationTime, id, publication, rawDataFile, user);
+	}
+
+	public PublicationPost(PublicationPost exists) {
+		this.user = exists.user;
+		this.publication = exists.publication;
+		this.rawDataFile = exists.rawDataFile;
+		
 	}	
 	
 	

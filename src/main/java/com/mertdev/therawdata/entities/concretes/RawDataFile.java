@@ -3,6 +3,7 @@ package com.mertdev.therawdata.entities.concretes;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,7 +28,7 @@ public class RawDataFile {
 	
 
 	
-	@OneToMany(mappedBy = "rawDataFileId")
+	@OneToMany(mappedBy = "rawDataFileId", cascade = CascadeType.ALL)
 	private List<RawData> rawDatas;
 	
 	@ManyToOne

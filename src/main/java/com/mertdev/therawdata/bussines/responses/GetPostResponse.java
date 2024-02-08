@@ -10,6 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetPostResponse {
+	private UUID shareUserId;
+	private String shareFullName;
+	private String shareUniqueName;
+	private String shareProfileImage;
 	private UUID id;
 	private UUID userId;
 	private String fullname;

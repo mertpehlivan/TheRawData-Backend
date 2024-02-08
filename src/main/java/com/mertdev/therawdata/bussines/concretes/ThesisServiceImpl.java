@@ -1,8 +1,8 @@
 package com.mertdev.therawdata.bussines.concretes;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.mertdev.therawdata.bussines.abstracts.PublicationAuthorService;
@@ -13,7 +13,6 @@ import com.mertdev.therawdata.bussines.responses.GetPostResponse;
 import com.mertdev.therawdata.bussines.responses.PostIdResponse;
 import com.mertdev.therawdata.bussines.responses.PublicationPostResponse;
 import com.mertdev.therawdata.dataAccess.abstracts.ThesisRepository;
-import com.mertdev.therawdata.entities.abstracts.Publication;
 import com.mertdev.therawdata.entities.concretes.Thesis;
 
 import lombok.RequiredArgsConstructor;
@@ -44,13 +43,9 @@ public class ThesisServiceImpl implements ThesisService{
 			);
 	}
 	@Override
-	public List<GetPostResponse> getAllThesis(String uniqueName) {
-		List<Thesis> thesisies = thesisRepository.findByPublicationPost_User_UniqueNameOrderByCreationTimeDesc(uniqueName);
-		List<Publication> publication = new ArrayList<>();
-		for(Thesis thesis : thesisies) {
-			publication.add(thesis);
-		}
-		return postService.getAllPost(publication);
+	public List<GetPostResponse> getAllThesis(String uniqueName,Pageable pageable) {
+		
+		return postService.getAllByUniqueName(uniqueName, "Thesis", pageable);
 		
 	}
 

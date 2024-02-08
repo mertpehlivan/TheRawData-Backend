@@ -17,7 +17,7 @@ public class ChatController{
     public NotificationResponse sendMessage(@Payload NotificationResponse notfication) {
         return notfication;
     }
-	@MessageMapping("/invitations")
+	@MessageMapping("/chat2")
     @SendTo("/topic/{userId}/invitations")
     public InvitationsResponse invitationNotification(@Payload InvitationsResponse notfication) {
         return notfication;

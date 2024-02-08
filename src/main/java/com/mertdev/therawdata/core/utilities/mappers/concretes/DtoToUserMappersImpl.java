@@ -23,6 +23,9 @@ public class DtoToUserMappersImpl implements DTOToUserMappers {
         response.setLastname(user.getLastname());
         response.setEmail(user.getEmail());
         response.setCountry(user.getCountry());
+        response.setEmailVerfiactionStatus(user.getEmailVerficationStatus());
+        response.setUniqueName(user.getUniqueName());
+        response.setProfileImageName(user.getProfileImageName());
         return response;
     }
 

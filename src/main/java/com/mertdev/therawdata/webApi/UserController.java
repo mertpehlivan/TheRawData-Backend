@@ -37,11 +37,39 @@ public class UserController {
 		return userService.getUser();
 	}
 
-	@GetMapping("/find")
-	public ResponseEntity<List<GetUserResponse>> findUsers(
-			@RequestParam(value = "firstName", required = false) String firstname,
-			@RequestParam(value = "lastName", required = false) String lastname) {
-		return ResponseEntity.ok(userService.searchUsers(firstname, lastname));
+	@GetMapping("/search")
+	public ResponseEntity<List<GetUserResponse>> searchUsers(
+            @RequestParam(name = "searchTerm", required = false) String searchTerm) {
+		System.out.println(searchTerm);
+		if (searchTerm == null || searchTerm.isEmpty()) {
+            // Handle the case when no searchTerm is provided
+            return ResponseEntity.badRequest().build();
+        }
+
+        // Split the search term into individual words
+        String[] searchTerms = searchTerm.split("\\s+");
+
+        try {
+            List<GetUserResponse> searchResults = userService.searchUsers(searchTerms);
+            return ResponseEntity.ok(searchResults);
+        } catch (Exception e) {
+            // Handle any exceptions
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+	@GetMapping("/searchByUniqueName")
+	public ResponseEntity<List<GetUserResponse>> searchUsersByUniqueName(
+	        @RequestParam(name = "uniqueName", required = false) String uniqueName) {
+		System.out.println(uniqueName);
+
+	    try {
+	        System.out.println(uniqueName);
+	        List<GetUserResponse> searchResults = userService.searchUsersByUniqueName(uniqueName);
+	        return ResponseEntity.ok(searchResults);
+	    } catch (Exception e) {
+	        // Handle any exceptions
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+	    }
 	}
 
 	@GetMapping("/{uniqueName}")
@@ -54,7 +82,6 @@ public class UserController {
 	public List<User> searchUsersByInitials(@RequestParam String initials) {
 		return userService.searchByInitials(initials);
 	}
-	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping("/follow/{followingId}")
 	public void followUser(@PathVariable UUID followingId) {
 		userService.followUser(followingId);

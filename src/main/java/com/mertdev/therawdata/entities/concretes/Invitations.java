@@ -1,5 +1,7 @@
 package com.mertdev.therawdata.entities.concretes;
 
+import java.util.UUID;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -27,7 +29,7 @@ public class Invitations {
 	private String userUrl;
 	private String publicationUrl;
 	private String contant;
-
+	private UUID publicationId;
 	private Boolean status;
 
 	@ManyToOne

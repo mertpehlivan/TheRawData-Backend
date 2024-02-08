@@ -1,10 +1,12 @@
 package com.mertdev.therawdata.bussines.concretes;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,27 +52,40 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public List<GetUserResponse> searchUsers(String firstname, String lastname) {
-		System.out.println(firstname);
+	public List<GetUserResponse> searchUsers(String[] searchTerms) {
+	    try {
+	        List<User> searchResults = new ArrayList<>();
+
+	        for (String term : searchTerms) {
+	            if (!term.isEmpty()) {
+	            	System.out.println(term);
+	                List<User> termResults = userRepository.searchUsers(term);
+	                searchResults.addAll(termResults);
+	            }
+	        }
+
+	        
+	        // Combine and remove duplicates
+	        Set<User> uniqueResults = new HashSet<>(searchResults);
+	        
+	        List<User> verifiedUsers = uniqueResults.stream()
+	                .filter(user -> Boolean.TRUE.equals(user.getEmailVerficationStatus()))
+	                .collect(Collectors.toList());
+	        return toUserMappers.userTo(new ArrayList<>(uniqueResults));
+	    } catch (Exception e) {
+	        throw e;
+	    }
+	}
+	@Override
+	public List<GetUserResponse> searchUsersByUniqueName(String uniqueName) {
 		try {
-			List<User> users;
-
-			if (firstname != "" && lastname != "") {
-				System.out.println("ikiside null değil");
-				users = userRepository.findByFirstnameStartingWithAndLastnameStartingWith(firstname, lastname);
-			} else if (firstname != "") {
-				System.out.println("firstname");
-				users = userRepository.findByFirstnameStartingWith(firstname);
-			} else if (lastname != "") {
-				users = userRepository.findByLastnameStartingWith(lastname);
-			} else {
-				users = userRepository.findAll();
-			}
-
+			List<User> users = userRepository.findByUniqueNameStartingWithIgnoreCase(uniqueName);
 			return toUserMappers.userTo(users);
 		} catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e.getMessage());
 		}
+		
+		
 	}
 
 	@Override
@@ -190,6 +205,7 @@ public class UserServiceImpl implements UserService {
 			System.err.println(e);
 		}
 	}
+	
 	private void sendNotificationToUser(User following,User follower, String fullName) {
 			System.out.println(following.getId());
 			String destination = "/topic/%s/notifications".formatted(following.getId().toString());
@@ -216,5 +232,10 @@ public class UserServiceImpl implements UserService {
 		notificationRepository.save(notification);
 
 	}
+
+	
+
+	
+	
 
 }

@@ -1,8 +1,8 @@
 package com.mertdev.therawdata.bussines.concretes;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.mertdev.therawdata.bussines.abstracts.CompanyTestReportService;
@@ -13,8 +13,6 @@ import com.mertdev.therawdata.bussines.responses.GetPostResponse;
 import com.mertdev.therawdata.bussines.responses.PostIdResponse;
 import com.mertdev.therawdata.bussines.responses.PublicationPostResponse;
 import com.mertdev.therawdata.dataAccess.abstracts.CompanyTestReportRepository;
-import com.mertdev.therawdata.entities.abstracts.Publication;
-import com.mertdev.therawdata.entities.concretes.ChapterInBook;
 import com.mertdev.therawdata.entities.concretes.CompanyTestReport;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +30,7 @@ public class CompanyTestReportServiceImpl implements CompanyTestReportService{
 		companyTestReport.setDate(reportRequest.getDate());
 		companyTestReport.setCompanyName(reportRequest.getCompanyName());
 		companyTestReport.setComment(reportRequest.getComment());
-		PostIdResponse id = postService.createPublication(companyTestReport);
+		PostIdResponse id = postService.createPublication(companyTestReport,reportRequest);
 		publicationAuthorService.createAuthor(reportRequest.getAuthors(), companyTestReport);
 		return id;
 	}
@@ -44,14 +42,9 @@ public class CompanyTestReportServiceImpl implements CompanyTestReportService{
 			);
 	}
 	@Override
-	public List<GetPostResponse> getAllCompanyTestReport(String uniqueName) {
-		List<CompanyTestReport> companyTestReports = companyTestReportRepository.findByPublicationPost_User_UniqueNameOrderByCreationTimeDesc(uniqueName);
-
-		List<Publication> publication = new ArrayList<>();
-		for(CompanyTestReport companyTestReport : companyTestReports) {
-			publication.add(companyTestReport);
-		}
-		return postService.getAllPost(publication);
+	public List<GetPostResponse> getAllCompanyTestReport(String uniqueName,Pageable pageable) {
+		
+		return postService.getAllByUniqueName(uniqueName, "Company Test Report", pageable);
 	}
 
 }

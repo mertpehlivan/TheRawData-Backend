@@ -30,6 +30,8 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -48,17 +50,28 @@ public class User implements UserDetails {
 	private UUID id;
 	private String firstname;
 	private String lastname;
+	@NotBlank(message = "Email is required")
+	@Email(message = "Invalid email format")
+	@Column(name = "email", unique = true)
 	private String email;
 	private String password;
 	private String country;
-	private String uniqueName;
+	
+	@Column(name = "unique_name")
+    private String uniqueName;
+    
 	private String profileImageName;
+	private String emailVerfication;
+	private Boolean emailVerficationStatus;
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Notification> notifications;
+	private List<Notification> notifications;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Invitations> ınvitations;
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Invitations> ınvitations;
-	
+	private List<Share> shares;
+
 	@OneToOne(mappedBy = "user") // Tek bir sepete sahip olacak şekilde değiştirildi
 	private Basket basket;
 

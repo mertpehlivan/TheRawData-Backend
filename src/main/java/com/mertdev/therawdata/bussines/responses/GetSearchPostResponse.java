@@ -5,17 +5,14 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InvitationsResponse {
-	private String fullName;
-	private String contant;
-	private UUID userId;
-	private Long id;
+public class GetSearchPostResponse {
+	private UUID id;
 	private String title;
-	private String userUrl;
-	private String publicationUrl;
-	private UUID publicationId;
+	private String type;
+	private String shareUserFullName;
+	private String shareUserUniqueName;
+	
 }

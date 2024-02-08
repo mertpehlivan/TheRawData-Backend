@@ -11,4 +11,5 @@ public interface RawDataFileService {
 	public CreatedRawDataFileIdResponse createRawDataFile(CreateRawDataFileRequest createRawDataFileRequest);
 	public RawDataFile getByFileId(UUID id);
 	void updateRawDataFileName(UpdateTitleRawDataFileRequest request);
+	void deleteRawDataFile(UUID fileId) throws Exception;
 }

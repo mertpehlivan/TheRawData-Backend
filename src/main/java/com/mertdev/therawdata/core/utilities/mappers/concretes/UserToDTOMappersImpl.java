@@ -16,6 +16,7 @@ public class UserToDTOMappersImpl implements UserToDTOMappers{
 		responseUser.setEmail(user.getEmail());
 		responseUser.setCountry(user.getCountry());
 		responseUser.setProfileImageName(user.getProfileImageName());
+		responseUser.setEmailVerfiactionStatus(user.getEmailVerficationStatus());
 		return responseUser;
 	}
 

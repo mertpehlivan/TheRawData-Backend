@@ -1,6 +1,7 @@
 package com.mertdev.therawdata.entities.concretes;
 
 import java.util.Date;
+import java.util.List;
 
 import com.mertdev.therawdata.entities.abstracts.Publication;
 import com.mertdev.therawdata.entities.abstracts.PublicationType;
@@ -22,7 +23,7 @@ public class CompanyTestReport extends Publication implements PublicationType{
 	@Temporal(TemporalType.TIMESTAMP)
     @Column(name = "creation_time", updatable = false)
     private Date creationTime;
-
+	private List<String> authors;
     @PrePersist
     protected void onCreate() {
         creationTime = new Date();
@@ -53,6 +54,14 @@ public class CompanyTestReport extends Publication implements PublicationType{
 	public PublicationType getObject() {
 		// TODO Auto-generated method stub
 		return this;
+	}
+
+	public List<String> getAuthors() {
+		return authors;
+	}
+
+	public void setAuthors(List<String> authors) {
+		this.authors = authors;
 	}
 
 	

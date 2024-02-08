@@ -1,6 +1,7 @@
 package com.mertdev.therawdata.entities.concretes;
 
 import java.util.Date;
+import java.util.List;
 
 import com.mertdev.therawdata.entities.abstracts.Publication;
 import com.mertdev.therawdata.entities.abstracts.PublicationType;
@@ -29,6 +30,7 @@ public class ChapterInBook extends Publication implements PublicationType{
 	private String publisher;
 	private String isbn;
 	private String editor;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "creation_time", updatable = false)
     private Date creationTime;
@@ -114,6 +116,8 @@ public class ChapterInBook extends Publication implements PublicationType{
 	public PublicationType getObject() {
 		return this;
 	}
+
+	
 
 
 }

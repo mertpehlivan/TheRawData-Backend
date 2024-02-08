@@ -23,10 +23,15 @@ public class ImageController {
 	}
 	@GetMapping("profileImage/{imageName}")
 	public byte[] getProfileImage(@PathVariable String imageName) {
-		
-		return s3Service.getObject(
-				"profileImage/%s".formatted(imageName)
-				);
+	    try {
+	        if (imageName != null) {
+	            return s3Service.getObject("profileImage/%s".formatted(imageName));
+	        }
+	    } catch (Exception e) {
+	        return null;
+	    }
+	    return null;
 	}
+
 	
 }

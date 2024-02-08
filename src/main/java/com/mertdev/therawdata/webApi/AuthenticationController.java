@@ -18,6 +18,9 @@ import com.mertdev.therawdata.bussines.abstracts.AuthenticationService;
 import com.mertdev.therawdata.bussines.requests.LoginRequest;
 import com.mertdev.therawdata.bussines.requests.RegisterRequest;
 import com.mertdev.therawdata.bussines.responses.AuthenticationResponse;
+import com.mertdev.therawdata.bussines.responses.RegisterResponse;
+import com.mertdev.therawdata.exceptions.EmailException;
+import com.mertdev.therawdata.exceptions.UniqueNameException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,18 +31,28 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     @CrossOrigin()
     @PostMapping("/signup")
-    public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request
-    ){
-    	System.out.println("servis çağrıldı");
-    	try {
-    		return ResponseEntity.ok(authenticationService.register(request));
-		} catch (Exception e) {
-			System.out.println(e);
-			throw e;
-		}
-    	
-        
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        try {
+            AuthenticationResponse response = authenticationService.register(request);
+            return ResponseEntity.ok(response);
+        } catch (EmailException e) {
+
+            return ResponseEntity.badRequest().body(new RegisterResponse(e.getMessage(),false));
+        } catch (UniqueNameException e) {
+
+            return ResponseEntity.badRequest().body(new RegisterResponse(e.getMessage(),false));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new AuthenticationResponse("Internal Server Error","",false));
+        }
+    }
+    @PostMapping("/invite")
+    public ResponseEntity<?> tempCreateUser(@RequestBody RegisterRequest request) {
+    	System.out.println(request);
+        try {
+            return ResponseEntity.ok(authenticationService.tempCreateUser(request));
+        }  catch (Exception e) {
+            return ResponseEntity.status(500).body(new EmailException(e.getMessage()));
+        }
     }
     @CrossOrigin()
     @PostMapping("/login")

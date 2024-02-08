@@ -3,6 +3,7 @@ package com.mertdev.therawdata.bussines.concretes;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.mertdev.therawdata.bussines.abstracts.ChapterInABookService;
@@ -38,7 +39,7 @@ public class ChapterInABookServiceImpl implements ChapterInABookService{
 		chapterInBook.setPublisher(chapterInBook.getPublisher());
 		chapterInBook.setTitle(createChapterInABookRequest.getTitle());
 		chapterInBook.setComment(createChapterInABookRequest.getComment());
-		PostIdResponse id = postService.createPublication(chapterInBook);
+		PostIdResponse id = postService.createPublication(chapterInBook,createChapterInABookRequest);
 		publicationAuthorService.createAuthor(createChapterInABookRequest.getAuthors(), chapterInBook);
 		return id;
 	}
@@ -50,14 +51,9 @@ public class ChapterInABookServiceImpl implements ChapterInABookService{
 			);
 	}
 	@Override
-	public List<GetPostResponse> getAllChapterInABook(String uniqueName) {
-		List<ChapterInBook> chapterInBooks = chapterInABookRepository.findByPublicationPost_User_UniqueNameOrderByCreationTimeDesc(uniqueName);
-
-		List<Publication> publication = new ArrayList<>();
-		for(ChapterInBook chapterInBook : chapterInBooks) {
-			publication.add(chapterInBook);
-		}
-		return postService.getAllPost(publication);
+	public List<GetPostResponse> getAllChapterInABook(String uniqueName,Pageable pageable) {
+		
+		return postService.getAllByUniqueName(uniqueName,"Chapter in Book",pageable);
 	}
 
 }

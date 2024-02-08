@@ -2,6 +2,7 @@ package com.mertdev.therawdata.bussines.concretes;
 
 import java.io.IOException;
 
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -51,8 +52,9 @@ public class S3Service {
 		try {
 			return res.readAllBytes();
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			return null;
 		}
 	}
+	
 	
 }

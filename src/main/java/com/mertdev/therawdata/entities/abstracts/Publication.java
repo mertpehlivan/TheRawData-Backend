@@ -37,6 +37,7 @@ public abstract class Publication {
     @Column(length = 2000)
 	private String comment;
     
+    
     @OneToOne(mappedBy = "publication")
     private PublicationPost publicationPost;
     

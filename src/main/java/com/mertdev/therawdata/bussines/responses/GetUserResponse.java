@@ -17,5 +17,6 @@ public class GetUserResponse{
 	private String email;
 	private String country;
 	private String profileImageName;
+	private Boolean emailVerfiactionStatus;
 	
 }
