@@ -2,11 +2,24 @@ server:
   port: 8080
 
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: mertpehlivandev54@gmail.com
+    password: pwbb mhjg snib ehtg
+    properties: 
+      mail:
+        smtp:
+          starttls:
+              enable: true
+              required: true
+          auth: true
+          
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/therawdata
+    url: jdbc:postgresql://rawdatalibraryms.c8p3thzjg7tm.eu-west-1.rds.amazonaws.com:5432/rawdatalibraryMS
     username: postgres
-    password: 123
+    password: 54Ra290-+
     hikari:
       data-source-properties:
         serverTimezone: UTC
