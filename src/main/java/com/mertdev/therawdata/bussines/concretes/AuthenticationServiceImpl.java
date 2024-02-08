@@ -36,14 +36,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 	@Override
 	public AuthenticationResponse register(RegisterRequest request) throws Exception {
-
+		
 	    if (userRepository.existsByEmail(request.getEmail())) {
 	        User user = userRepository.findByEmail(request.getEmail());
 	        if (user.getEmailVerficationStatus()) {
 	            throw new EmailException("Email already in use");
 	        } else {
 	            String code = mailService.generateVerificationCode();
-	            mailService.sendVerificationCode(request.getLastname(), request.getEmail(), code);
+	            mailService.sendVerificationCode(user, request.getEmail(), code);
 	            
 	            user.setFirstname(request.getFirstname());
 	            user.setLastname(request.getLastname());
@@ -64,9 +64,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	    }
 
 	    try {
-	        String code = mailService.generateVerificationCode();
-	        mailService.sendVerificationCode(request.getLastname(), request.getEmail(), code);
-
+	        
+	    	String code = mailService.generateVerificationCode();
 	        var user = User.builder()
 	                .firstname(request.getFirstname())
 	                .lastname(request.getLastname())
@@ -79,7 +78,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	                .emailVerficationStatus(false)
 	                .build();
 
-	        userRepository.save(user);
+	        User userSaved =userRepository.save(user);
+	        
+	        mailService.sendVerificationCode(userSaved, request.getEmail(), code);
 
 	        var jwtToken = jwtService.generateToken(user);
 	        return AuthenticationResponse.builder().token(jwtToken).build();

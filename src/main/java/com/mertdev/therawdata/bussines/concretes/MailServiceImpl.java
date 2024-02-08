@@ -35,7 +35,7 @@ public class MailServiceImpl implements MailService {
 	private String fromMail;
 
 	@Override
-	public void sendVerificationCode(String lastname, String email, String verificationCode) throws MessagingException {
+	public void sendVerificationCode(User user, String email, String verificationCode) throws MessagingException {
 		MimeMessage message = javaMailSender.createMimeMessage();
 		MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -43,14 +43,14 @@ public class MailServiceImpl implements MailService {
 		helper.setTo(email);
 		helper.setSubject("Email Verification Code");
 
-		// HTML content
+
 		String htmlContent = "<html><body>" + "<p>Hello [Recipient Name],</p>"
 				+ "<p>To ensure the security of your account, we have sent a verification code.</p>"
 				+ "<p>Please use the code below to verify your account:</p>" + "<p><strong>Verification Code:</strong> "
 				+ verificationCode + "</p>"
 				+ "<p>If you did not request this verification code, please disregard this email. The security of your account is important to us.</p>"
 				+ "<p>Thank you,<br/>The RawData Library Support Team</p>" + "</body></html>";
-		helper.setText(htmlContent, true); // Set content as HTML
+		helper.setText(htmlContent, true); 
 
 		javaMailSender.send(message);
 	}
