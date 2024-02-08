@@ -14,6 +14,7 @@ import com.mertdev.therawdata.bussines.abstracts.MailService;
 import com.mertdev.therawdata.bussines.requests.EmailVerficationRequest;
 import com.mertdev.therawdata.dataAccess.abstracts.UserRepository;
 import com.mertdev.therawdata.entities.concretes.User;
+import com.mertdev.therawdata.exceptions.EmailException;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -53,6 +54,23 @@ public class MailServiceImpl implements MailService {
 		helper.setText(htmlContent, true); 
 
 		javaMailSender.send(message);
+	}
+	@Override
+	public void sendEmailCode(User user, String email) throws Exception {
+		try {
+			if(user.getEmail() == email) {
+				String code = generateVerificationCode();
+				user.setEmailVerfication(code);
+				userRepository.save(user);
+				sendVerificationCode(user, email, code);
+			}else {
+				throw new EmailException("Not found email");
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+		
+		
 	}
 
 	@Override

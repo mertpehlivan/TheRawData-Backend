@@ -18,4 +18,8 @@ public interface MailService {
 	void sendInvite(String email,String firstname,String lastname);
 
 	void sendVerificationCode(User user, String email, String verificationCode) throws MessagingException;
+
+
+
+	void sendEmailCode(User user, String email) throws Exception;
 }
