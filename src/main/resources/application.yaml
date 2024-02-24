@@ -1,0 +1,47 @@
+erver:
+  port: 8080
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: mertpehlivandev54@gmail.com
+    password: cyta vqhq poev kvkg
+    properties: 
+      mail:
+        smtp:
+          starttls:
+              enable: true
+              required: true
+          auth: true
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://rawdatalibraryms.c8p3thzjg7tm.eu-west-1.rds.amazonaws.com:5432/rawdatalibraryMS
+    username: postgres
+    password: 54Ra290-+
+    hikari:
+      data-source-properties:
+        serverTimezone: UTC
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+      javax.persistence.validation.mode: none
+
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 500MB
+      max-request-size: 500MB
+
+s3:
+  endpointUrl: https://s3.amazonaws.com
+  accessKeyId: AKIASJSUFYUKQQGIXM63
+  secretKey: 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
+  bucketName: baligongbuckettest
+  region: eu-west-1

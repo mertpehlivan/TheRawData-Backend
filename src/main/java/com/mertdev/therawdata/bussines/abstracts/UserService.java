@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.mertdev.therawdata.bussines.requests.ChangePasswordRequest;
 import com.mertdev.therawdata.bussines.responses.GetProfileDataResponse;
 import com.mertdev.therawdata.bussines.responses.GetUserResponse;
 import com.mertdev.therawdata.entities.concretes.User;
@@ -20,5 +21,9 @@ public interface UserService {
 	public void followUser(@PathVariable UUID followingId);
 	List<GetUserResponse> searchUsers(String[] searchTerms);
 	List<GetUserResponse> searchUsersByUniqueName(String uniqueName);
+	void changeEmail(String newEmail);
+	Boolean changeEmailStatus(String newEmail);
+	void changeUsername(String newUsername);
+	void changePassword(ChangePasswordRequest request) throws Exception;
 	
 }

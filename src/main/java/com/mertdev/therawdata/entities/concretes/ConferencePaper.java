@@ -2,6 +2,7 @@ package com.mertdev.therawdata.entities.concretes;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.mertdev.therawdata.entities.abstracts.Publication;
 import com.mertdev.therawdata.entities.abstracts.PublicationType;
@@ -89,6 +90,20 @@ public class ConferencePaper extends Publication implements PublicationType{
 		return this;
 	}
 
+	@Override
+	public String getSummary() {
+		return String.format("%s, %s, %s, %s, %s, %s, %s",
+			    getTitle(),
+			    getDate().toString(),
+			    getConferenceName(),
+			    getLocation(),
+			    getPages(),
+			    getDoi(),
+			    getPublicationAuthors().stream()
+			                            .map(author -> author.getAuthor().getFirstname() + " " + author.getAuthor().getLastname())
+			                            .collect(Collectors.joining(", "))
+			);
 
+	}
 	
 }

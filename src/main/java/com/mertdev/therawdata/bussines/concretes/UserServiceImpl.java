@@ -10,9 +10,12 @@ import java.util.stream.Collectors;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.mertdev.therawdata.bussines.abstracts.MailService;
 import com.mertdev.therawdata.bussines.abstracts.UserService;
+import com.mertdev.therawdata.bussines.requests.ChangePasswordRequest;
 import com.mertdev.therawdata.bussines.responses.GetProfileDataResponse;
 import com.mertdev.therawdata.bussines.responses.GetUserResponse;
 import com.mertdev.therawdata.bussines.responses.NotificationResponse;
@@ -22,6 +25,8 @@ import com.mertdev.therawdata.dataAccess.abstracts.NotificationRepository;
 import com.mertdev.therawdata.dataAccess.abstracts.UserRepository;
 import com.mertdev.therawdata.entities.concretes.Notification;
 import com.mertdev.therawdata.entities.concretes.User;
+import com.mertdev.therawdata.exceptions.EmailException;
+import com.mertdev.therawdata.exceptions.UniqueNameException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,10 +35,13 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
 
 	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
 	private final UserToDTOMappers toDTOMappers;
 	private final DTOToUserMappers toUserMappers;
 	private final SimpMessagingTemplate messagingTemplate;
 	private final NotificationRepository notificationRepository;
+	private final MailService mailService;
+
 	@Override
 	public String getCurrentUsername() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -53,29 +61,28 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<GetUserResponse> searchUsers(String[] searchTerms) {
-	    try {
-	        List<User> searchResults = new ArrayList<>();
+		try {
+			List<User> searchResults = new ArrayList<>();
 
-	        for (String term : searchTerms) {
-	            if (!term.isEmpty()) {
-	            	System.out.println(term);
-	                List<User> termResults = userRepository.searchUsers(term);
-	                searchResults.addAll(termResults);
-	            }
-	        }
+			for (String term : searchTerms) {
+				if (!term.isEmpty()) {
+					System.out.println(term);
+					List<User> termResults = userRepository.searchUsers(term);
+					searchResults.addAll(termResults);
+				}
+			}
 
-	        
-	        // Combine and remove duplicates
-	        Set<User> uniqueResults = new HashSet<>(searchResults);
-	        
-	        List<User> verifiedUsers = uniqueResults.stream()
-	                .filter(user -> Boolean.TRUE.equals(user.getEmailVerficationStatus()))
-	                .collect(Collectors.toList());
-	        return toUserMappers.userTo(new ArrayList<>(uniqueResults));
-	    } catch (Exception e) {
-	        throw e;
-	    }
+			// Combine and remove duplicates
+			Set<User> uniqueResults = new HashSet<>(searchResults);
+
+			List<User> verifiedUsers = uniqueResults.stream()
+					.filter(user -> Boolean.TRUE.equals(user.getEmailVerficationStatus())).collect(Collectors.toList());
+			return toUserMappers.userTo(new ArrayList<>(uniqueResults));
+		} catch (Exception e) {
+			throw e;
+		}
 	}
+
 	@Override
 	public List<GetUserResponse> searchUsersByUniqueName(String uniqueName) {
 		try {
@@ -84,8 +91,7 @@ public class UserServiceImpl implements UserService {
 		} catch (Exception e) {
 			throw new RuntimeException(e.getMessage());
 		}
-		
-		
+
 	}
 
 	@Override
@@ -198,27 +204,28 @@ public class UserServiceImpl implements UserService {
 
 			userRepository.save(follower);
 			userRepository.save(following);
-			
-			sendNotificationToUser(following, follower, "%s %s".formatted(follower.getFirstname(), follower.getLastname()));
+
+			sendNotificationToUser(following, follower,
+					"%s %s".formatted(follower.getFirstname(), follower.getLastname()));
 
 		} catch (Exception e) {
 			System.err.println(e);
 		}
 	}
-	
-	private void sendNotificationToUser(User following,User follower, String fullName) {
-			System.out.println(following.getId());
-			String destination = "/topic/%s/notifications".formatted(following.getId().toString());
-			NotificationResponse notificationResponse = new NotificationResponse();
-			notificationResponse.setContent("started following you.");
-			notificationResponse.setFullName(fullName);
-			notificationResponse.setPublicationLink(null);
-			notificationResponse.setPublicationTitle(null);
-			notificationResponse.setUserLink("/%s".formatted(follower.getUniqueName()));
-			notificationResponse.setType("follow");
-			notificationResponse.setStatus(false);
-			messagingTemplate.convertAndSend(destination, notificationResponse);
-			
+
+	private void sendNotificationToUser(User following, User follower, String fullName) {
+		System.out.println(following.getId());
+		String destination = "/topic/%s/notifications".formatted(following.getId().toString());
+		NotificationResponse notificationResponse = new NotificationResponse();
+		notificationResponse.setContent("started following you.");
+		notificationResponse.setFullName(fullName);
+		notificationResponse.setPublicationLink(null);
+		notificationResponse.setPublicationTitle(null);
+		notificationResponse.setUserLink("/%s".formatted(follower.getUniqueName()));
+		notificationResponse.setType("follow");
+		notificationResponse.setStatus(false);
+		messagingTemplate.convertAndSend(destination, notificationResponse);
+
 		Notification notification = new Notification();
 		notification.setContent("started following you.");
 		notification.setFullName(notificationResponse.getFullName());
@@ -228,14 +235,72 @@ public class UserServiceImpl implements UserService {
 		notification.setType(notificationResponse.getType());
 		notification.setUser(following);
 		notification.setStatus(false);
-		
+
 		notificationRepository.save(notification);
 
 	}
 
-	
+	@Override
+	public void changeEmail(String newEmail) {
+		if (userRepository.existsByEmail(newEmail)) {
+			throw new EmailException("This email address is already used");
+		}
+		User user = this.getCurrentUser();
+		user.setEmail(newEmail);
+		User changeUser = userRepository.save(user);
+		try {
+			mailService.sendEmailCode(changeUser, changeUser.getEmail());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-	
-	
+	@Override
+	public Boolean changeEmailStatus(String newEmail) {
+		return userRepository.existsByEmail(newEmail);
+	}
+
+	@Override
+	public void changeUsername(String newUsername) {
+		try {
+			if (userRepository.existsByUniqueName(newUsername)) {
+				throw new UniqueNameException("This username address is already used");
+			}
+			User user = this.getCurrentUser();
+			user.setUniqueName(newUsername);
+			userRepository.save(user);
+		} catch (Exception e) {
+			throw e;
+		}
+	}
+
+	@Override
+	public void changePassword(ChangePasswordRequest request) throws Exception {
+		User user = getCurrentUser();
+		System.out.println(request);
+		try {
+			if(request.getConfirmPassword() == null ||request.getNewPassword() == null ||request.getCurrentPassword() == null ) {
+				throw new Exception("Not null");
+			}
+			else if(passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+				
+				if (request.getNewPassword().equals(request.getConfirmPassword())) {
+					if(request.getNewPassword().equals(request.getCurrentPassword())!= true) {
+						user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+						userRepository.save(user);
+					}else {
+						throw new Exception("Your current password must be different from your new password.");
+					}
+					
+				}else {
+					throw new Exception("The new password and the confirmation password are not the same.");
+				}
+			}else {
+				throw new Exception("Your current password is incorrect");
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 
 }

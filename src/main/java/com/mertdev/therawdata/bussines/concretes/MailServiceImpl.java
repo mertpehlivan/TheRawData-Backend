@@ -57,15 +57,13 @@ public class MailServiceImpl implements MailService {
 	}
 	@Override
 	public void sendEmailCode(User user, String email) throws Exception {
+		System.out.println(user.getEmail());
 		try {
-			if(user.getEmail() == email) {
-				String code = generateVerificationCode();
-				user.setEmailVerfication(code);
-				userRepository.save(user);
-				sendVerificationCode(user, email, code);
-			}else {
-				throw new EmailException("Not found email");
-			}
+			
+			    String code = generateVerificationCode(); // Doğrulama kodu oluştur
+			    user.setEmailVerfication(code); // Kullanıcıya doğrulama kodunu ata
+			    userRepository.save(user); // Kullanıcıyı kaydet
+			    sendVerificationCode(user, email, code); 
 		} catch (Exception e) {
 			throw e;
 		}

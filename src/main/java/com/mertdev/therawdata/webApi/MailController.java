@@ -27,7 +27,7 @@ public class MailController {
 		System.out.println(request.getCode());
 		try {
 			boolean verificationResult = mailService.userEmailVerfication(request);
-
+			System.out.println(verificationResult);
 			if (verificationResult) {
 
 				return ResponseEntity.ok(true);
@@ -42,18 +42,20 @@ public class MailController {
 	}
 
 	@PostMapping("/sendEmailCode")
-	public ResponseEntity<Boolean> senEmailCode(@RequestBody SendEmailCodeRequest request) {
+	public ResponseEntity<String> sendEmailCode(@RequestBody SendEmailCodeRequest request) {
 		System.out.println(request.getEmail());
 		User user = userService.getCurrentUser();
 		try {
 			mailService.sendEmailCode(user, request.getEmail());
 
-			return ResponseEntity.ok(true);
+			return ResponseEntity.ok("Code sent successfully");
 
 		} catch (Exception e) {
-
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+			
+			
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
+	
 
 }

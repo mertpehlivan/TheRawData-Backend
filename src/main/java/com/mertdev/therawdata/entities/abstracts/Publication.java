@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "publication_type")
 public abstract class Publication {
-	
+	public abstract String getSummary();
 	
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

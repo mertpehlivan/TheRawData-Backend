@@ -46,10 +46,10 @@ public class RawDataServiceImpl implements RawDataService {
 			rawData.setRawDataName(rawDataName);
 			rawData.setPrice(createRawDataRequest.getPrice());
 			RawData rawDataSaved = rawDataRepository.save(rawData);
-
-			s3Service.putObject("%s/%s/%s/%s/previewImage/%s".formatted(email, file.getPublicationPostId().getId(),
+			UUID userId = userService.getCurrentUser().getId();
+			s3Service.putObject("%s/%s/%s/%s/previewImage/%s".formatted(userId, file.getPublicationPostId().getId(),
 					file.getId(), rawDataSaved.getId(), imageName), createRawDataRequest.getImage().getBytes());
-			s3Service.putObject("%s/%s/%s/%s/rawData/%s".formatted(email, file.getPublicationPostId().getId(),
+			s3Service.putObject("%s/%s/%s/%s/rawData/%s".formatted(userId, file.getPublicationPostId().getId(),
 					file.getId(), rawDataSaved.getId(), rawDataName), createRawDataRequest.getRawData().getBytes());
 
 		} catch (Exception e) {
@@ -142,17 +142,17 @@ public class RawDataServiceImpl implements RawDataService {
 	public byte[] getPreviewImage(String previewImageName) {
 		try {
 			RawData rawData = rawDataRepository.findByPreviewImageName(previewImageName);
-			String email = rawData.getRawDataFileId().getPublicationPostId().getUser().getEmail();
-			log.info("User email: " + email);
+			UUID userId = rawData.getRawDataFileId().getPublicationPostId().getUser().getId();
+			log.info("User email: " + userId);
 			UUID postId = rawData.getRawDataFileId().getPublicationPostId().getId();
 			log.info("Post id: " + postId.toString());
 			UUID fileId = rawData.getRawDataFileId().getId();
 			log.info("File id: " + fileId.toString());
 
-			log.info("%s/%s/%s/%s/previewImage/%s".formatted(email, postId.toString(), fileId.toString(),
+			log.info("%s/%s/%s/%s/previewImage/%s".formatted(userId, postId.toString(), fileId.toString(),
 					rawData.getId().toString(), previewImageName.toString()));
 
-			return s3Service.getObject("%s/%s/%s/%s/previewImage/%s".formatted(email, postId.toString(),
+			return s3Service.getObject("%s/%s/%s/%s/previewImage/%s".formatted(userId, postId.toString(),
 					fileId.toString(), rawData.getId().toString(), previewImageName.toString()));
 		} catch (Exception e) {
 			throw e;
