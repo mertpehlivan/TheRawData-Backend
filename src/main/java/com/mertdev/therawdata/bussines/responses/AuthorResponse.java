@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class AuthorResponse {
 	private String firstname;
 	private String lastname;
+	private String uniqueName;
 	private String profileImageUrl;
 }

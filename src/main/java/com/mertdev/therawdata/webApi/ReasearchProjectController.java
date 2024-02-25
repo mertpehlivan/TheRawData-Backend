@@ -24,7 +24,7 @@ public class ReasearchProjectController {
 	private final ReasearchProjectService projectService;
 
 	@PostMapping("/create")
-	public PostIdResponse createArticle(@RequestBody CreateReasearchProjectRequest creProjectRequest) {
+	public PostIdResponse createArticle( CreateReasearchProjectRequest creProjectRequest) {
 		System.out.println(creProjectRequest);
 		return projectService.createReasearchProject(creProjectRequest);
 

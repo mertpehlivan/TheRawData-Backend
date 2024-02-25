@@ -52,6 +52,9 @@ public class PublicationPost {
 	@OneToMany(mappedBy="publicationPostId")
     private List<RawDataFile> rawDataFile;
 	
+	private String pdfFileName;
+	
+	
 	@Temporal(TemporalType.TIMESTAMP)
     @Column(name = "creation_time", updatable = false)
     private Date creationTime;

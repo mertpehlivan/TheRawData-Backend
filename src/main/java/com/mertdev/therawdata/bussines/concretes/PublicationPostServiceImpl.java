@@ -1,5 +1,6 @@
 package com.mertdev.therawdata.bussines.concretes;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -10,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.mertdev.therawdata.bussines.abstracts.PublicationPostService;
 import com.mertdev.therawdata.bussines.abstracts.UserService;
@@ -76,21 +77,39 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	private final SimpMessagingTemplate messagingTemplate;
 	private final InvitationRepository invitationRepository;
 	private final ShareRepository shareRepository;
+	private final S3Service s3Service;
 
 	@Override
 	public PublicationPost findPost(UUID id) {
 		return repository.getById(id);
 	}
 
+	private void pdfUploud(PublicationPost data,MultipartFile file) {
+		try {
+			if(file != null) {
+				s3Service.putObject("%s/%s/pdf/%s".formatted(
+						data.getUser().getId(),
+						data.getId(),file.getOriginalFilename()),file.getBytes());
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	@Override
-	public PostIdResponse createPublication(Article article,CreateArticleRequest createArticleRequest) {
+	public PostIdResponse createPublication(Article article, CreateArticleRequest createArticleRequest) {
 		String email = userService.getCurrentUsername();
 		User user = userRepository.findAllByEmail(email).orElseThrow();
 		PublicationPost publicationPost = new PublicationPost();
 		publicationPost.setPublication(article);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Article");
+		publicationPost.setPdfFileName(createArticleRequest.getPdfFile().getOriginalFilename());
 		PublicationPost data = repository.save(publicationPost);
+		
+		pdfUploud(data, createArticleRequest.getPdfFile());
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -103,15 +122,19 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		return idResponse;
 
 	}
+
 	@Override
-	public PostIdResponse createPublication(ChapterInBook chapterInBook, CreateChapterInABookRequest chapterInABookRequest) {
+	public PostIdResponse createPublication(ChapterInBook chapterInBook,
+			CreateChapterInABookRequest chapterInABookRequest) {
 		String email = userService.getCurrentUsername();
 		User user = userRepository.findAllByEmail(email).orElseThrow();
 		PublicationPost publicationPost = new PublicationPost();
 		publicationPost.setPublication(chapterInBook);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Chapter in Book");
+		publicationPost.setPdfFileName(chapterInABookRequest.getPdfFile().getOriginalFilename());
 		PublicationPost data = repository.save(publicationPost);
+		pdfUploud(data, chapterInABookRequest.getPdfFile());
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -126,21 +149,24 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	}
 
 	@Override
-	public PostIdResponse createPublication(ConferencePaper conferencePaper, CreateConferencePaperRequest conferencePaperRequest) {
+	public PostIdResponse createPublication(ConferencePaper conferencePaper,
+			CreateConferencePaperRequest conferencePaperRequest) {
 		String email = userService.getCurrentUsername();
 		User user = userRepository.findAllByEmail(email).orElseThrow();
 		PublicationPost publicationPost = new PublicationPost();
 		publicationPost.setPublication(conferencePaper);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Conference Paper");
+		publicationPost.setPdfFileName(conferencePaperRequest.getPdfFile().getOriginalFilename());
 		PublicationPost data = repository.save(publicationPost);
+		pdfUploud(data, conferencePaperRequest.getPdfFile());
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
 		shareRepository.save(share);
 		sendNotificationToUser(user, data.getPublication().getTitle(),
 				"%s %s".formatted(user.getFirstname(), user.getLastname()), data.getId());
-		
+
 		sendToInvitations(data, conferencePaperRequest.getAuthors());
 		PostIdResponse idResponse = new PostIdResponse();
 		idResponse.setId(data.getId());
@@ -155,7 +181,9 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(thesis);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Thesis");
+		publicationPost.setPdfFileName(createThesisRequest.getPdfFile().getOriginalFilename());
 		PublicationPost data = repository.save(publicationPost);
+		pdfUploud(data, createThesisRequest.getPdfFile());
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -171,14 +199,17 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	}
 
 	@Override
-	public PostIdResponse createPublication(ResearchProject reasearchProject, CreateReasearchProjectRequest createReasearchProjectRequest) {
+	public PostIdResponse createPublication(ResearchProject reasearchProject,
+			CreateReasearchProjectRequest createReasearchProjectRequest) {
 		String email = userService.getCurrentUsername();
 		User user = userRepository.findAllByEmail(email).orElseThrow();
 		PublicationPost publicationPost = new PublicationPost();
 		publicationPost.setPublication(reasearchProject);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Research Project");
+		publicationPost.setPdfFileName(createReasearchProjectRequest.getPdfFile().getOriginalFilename());
 		PublicationPost data = repository.save(publicationPost);
+		pdfUploud(data, createReasearchProjectRequest.getPdfFile());
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -192,14 +223,17 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	}
 
 	@Override
-	public PostIdResponse createPublication(CompanyTestReport companyTestReport, CreateCompanyTestReportRequest createCompanyTestReportRequest) {
+	public PostIdResponse createPublication(CompanyTestReport companyTestReport,
+			CreateCompanyTestReportRequest createCompanyTestReportRequest) {
 		String email = userService.getCurrentUsername();
 		User user = userRepository.findAllByEmail(email).orElseThrow();
 		PublicationPost publicationPost = new PublicationPost();
 		publicationPost.setPublication(companyTestReport);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Company Test Report");
+		publicationPost.setPdfFileName(createCompanyTestReportRequest.getPdfFile().getOriginalFilename());
 		PublicationPost data = repository.save(publicationPost);
+		pdfUploud(data, createCompanyTestReportRequest.getPdfFile());
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -334,7 +368,7 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 				tempPost.setShareProfileImage(publication.getUser().getProfileImageName());
 			}
 			for (PublicationAuthor author : publication.getPublicationPost().getPublication().getPublicationAuthors()) {
-				tempAuthors.add(authorToResponse.toResponse(author, author.getAuthor().getProfileImageName()));
+				tempAuthors.add(authorToResponse.toResponse(author));
 			}
 			tempPost.setAuthors(tempAuthors);
 			tempPost.setCreationTime(timeTage(publication.getCreationTime()));
@@ -441,24 +475,23 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		}
 	}
 
-	
-	
-
 	@Override
 	public GetPostResponse getPost(UUID publicationId) {
-		String imageUrl ="";
+		String imageUrl = "";
 		PublicationPost publication = repository.getById(publicationId);
 
 		GetPostResponse tempPost = new GetPostResponse();
 		List<AuthorResponse> tempAuthors = new ArrayList<>();
 		for (PublicationAuthor author : publication.getPublication().getPublicationAuthors()) {
-			tempAuthors.add(authorToResponse.toResponse(author, imageUrl));
+			tempAuthors.add(authorToResponse.toResponse(author));
 		}
 		tempPost.setAuthors(tempAuthors);
 		tempPost.setCreationTime(timeTage(publication.getCreationTime()));
 		tempPost.setFullname("%s %s".formatted(publication.getUser().getFirstname(), publication.getUser().getLastname()
 
 		));
+		tempPost.setProfileImage(publication.getUser().getProfileImageName());
+		tempPost.setSummary(publication.getPublication().getSummary());
 		tempPost.setUniqueName(publication.getUser().getUniqueName());
 		tempPost.setUserId(publication.getUser().getId());
 		tempPost.setComment(publication.getPublication().getComment());
@@ -493,14 +526,15 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	}
 
 	@Override
-	public List<GetPostResponse> getAllByUniqueName(String uniqueName,String publicationType,Pageable pageable) {
+	public List<GetPostResponse> getAllByUniqueName(String uniqueName, String publicationType, Pageable pageable) {
 		Page<Share> shares = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
-		if(publicationType == null) {
-			shares = shareRepository.findByUserUniqueNameOrderByCreationTime(uniqueName,pageable);
-		}else {
-			shares = shareRepository.findByPublicationTypeAndUserUniqueNameOrderByCreationTime(publicationType,uniqueName,pageable);
+		if (publicationType == null) {
+			shares = shareRepository.findByUserUniqueNameOrderByCreationTime(uniqueName, pageable);
+		} else {
+			shares = shareRepository.findByPublicationTypeAndUserUniqueNameOrderByCreationTime(publicationType,
+					uniqueName, pageable);
 		}
-		
+
 		List<GetPostResponse> tempPosts = new ArrayList<>();
 
 		for (Share publication : shares) {
@@ -519,7 +553,7 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 				tempPost.setShareProfileImage(publication.getUser().getProfileImageName());
 			}
 			for (PublicationAuthor author : publication.getPublicationPost().getPublication().getPublicationAuthors()) {
-				tempAuthors.add(authorToResponse.toResponse(author, author.getAuthor().getProfileImageName()));
+				tempAuthors.add(authorToResponse.toResponse(author));
 			}
 			tempPost.setAuthors(tempAuthors);
 			tempPost.setCreationTime(timeTage(publication.getCreationTime()));
@@ -562,15 +596,16 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		}
 		return tempPosts;
 	}
-	
-	@Override 
-	public List<GetSearchPostResponse> getSearchPost(String title,Pageable pageable){
+
+	@Override
+	public List<GetSearchPostResponse> getSearchPost(String title, Pageable pageable) {
 		Page<PublicationPost> posts = repository.findByPublicationTitleContainingIgnoreCase(title, pageable);
 		List<GetSearchPostResponse> responses = new ArrayList<>();
-		for(PublicationPost post : posts){
+		for (PublicationPost post : posts) {
 			GetSearchPostResponse response = new GetSearchPostResponse();
 			response.setId(post.getId());
-			response.setShareUserFullName("%s %s".formatted(post.getUser().getFirstname(),post.getUser().getLastname()));
+			response.setShareUserFullName(
+					"%s %s".formatted(post.getUser().getFirstname(), post.getUser().getLastname()));
 			response.setShareUserUniqueName(post.getUser().getUniqueName());
 			response.setTitle(post.getPublication().getTitle());
 			response.setType(publicationType(post.getPublication()));
@@ -601,7 +636,7 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 				tempPost.setShareProfileImage(publication.getUser().getProfileImageName());
 			}
 			for (PublicationAuthor author : publication.getPublicationPost().getPublication().getPublicationAuthors()) {
-				tempAuthors.add(authorToResponse.toResponse(author, author.getAuthor().getProfileImageName()));
+				tempAuthors.add(authorToResponse.toResponse(author));
 			}
 			tempPost.setAuthors(tempAuthors);
 			tempPost.setCreationTime(timeTage(publication.getCreationTime()));

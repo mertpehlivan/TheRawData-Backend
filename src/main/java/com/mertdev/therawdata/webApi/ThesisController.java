@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 public class ThesisController {
 	private ThesisService thesisService;
 	@PostMapping("/create")
-	public PostIdResponse createArticle(@RequestBody CreateThesisRequest thesisRequest) {
+	public PostIdResponse createArticle(CreateThesisRequest thesisRequest) {
 		System.out.println(thesisRequest);
 		return thesisService.createThesis(thesisRequest);
 

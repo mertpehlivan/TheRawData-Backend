@@ -24,7 +24,7 @@ public class ChapterInABookController {
 	private final ChapterInABookService chapterInABookService;
 	
 	@PostMapping("/create")
-	public PostIdResponse createArticle(@RequestBody CreateChapterInABookRequest chapterInABookRequest) {
+	public PostIdResponse createChapterInABook(CreateChapterInABookRequest chapterInABookRequest) {
 		System.out.println(chapterInABookRequest);
 		return chapterInABookService.createArticle(chapterInABookRequest);
 	}

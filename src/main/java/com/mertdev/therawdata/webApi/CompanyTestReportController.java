@@ -23,7 +23,7 @@ import lombok.AllArgsConstructor;
 public class CompanyTestReportController {
 	private final CompanyTestReportService companyTestReportService;
 	@PostMapping("/create")
-	public PostIdResponse createCompanyTestReport(@RequestBody CreateCompanyTestReportRequest reportRequest) {
+	public PostIdResponse createCompanyTestReport(CreateCompanyTestReportRequest reportRequest) {
 		System.out.println(reportRequest);
 		return companyTestReportService.createCompanyTestReport(reportRequest);
 	}

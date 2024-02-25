@@ -24,7 +24,7 @@ public class ConferencePaperController {
 	private final ConferencePaperService conferencePaperService;
 	
 	@PostMapping("/create")
-	public PostIdResponse createConferencePaper(@RequestBody CreateConferencePaperRequest conferencePaperRequest) {
+	public PostIdResponse createConferencePaper(CreateConferencePaperRequest conferencePaperRequest) {
 		System.out.println(conferencePaperRequest);
 		return conferencePaperService.createConferencePaper(conferencePaperRequest);
 

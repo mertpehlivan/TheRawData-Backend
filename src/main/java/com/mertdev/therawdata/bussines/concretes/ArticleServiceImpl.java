@@ -32,7 +32,7 @@ public class ArticleServiceImpl implements ArticleService {
 	
 	@Override
 	public PostIdResponse createArticle(CreateArticleRequest createArticleRequest) {
-		 
+		 System.out.println(createArticleRequest.getPdfFile());
 		Article article = articleMappers.createArticleToArticle(createArticleRequest);
 		PostIdResponse id = postService.createPublication(article,createArticleRequest);
 		publicationAuthorService.createAuthor(createArticleRequest.getAuthors(), article);

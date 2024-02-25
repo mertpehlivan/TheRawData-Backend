@@ -2,6 +2,7 @@ package com.mertdev.therawdata.bussines.requests;
 
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,4 +20,7 @@ public class CreateArticleRequest {
 	private String doi;
 	private String comment;
 	private List<String> authors;
+	private Boolean addOnly;
+	private MultipartFile pdfFile;
+	private String fileEx;
 }

@@ -24,7 +24,7 @@ public class ArticleController {
 	private ArticleService articleService;
 	
 	@PostMapping("/create")
-	public PostIdResponse createArticle(@RequestBody CreateArticleRequest articleRequest) {
+	public PostIdResponse createArticle(CreateArticleRequest articleRequest) {
 		System.out.println(articleRequest);
 		return articleService.createArticle(articleRequest);
 

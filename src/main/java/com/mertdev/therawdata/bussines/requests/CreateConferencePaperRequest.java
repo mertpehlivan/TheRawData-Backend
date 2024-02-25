@@ -3,6 +3,9 @@ package com.mertdev.therawdata.bussines.requests;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class CreateConferencePaperRequest {
 	
 	private String title;
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
 	private Date date;
 	private String conferenceName;
 	private String location;
@@ -20,4 +24,7 @@ public class CreateConferencePaperRequest {
 	private String pages;
 	private String comment;
 	private List<String> authors;
+	private Boolean addOnly;
+	private MultipartFile pdfFile;
+	private String fileEx;
 }
