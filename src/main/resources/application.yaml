@@ -41,7 +41,7 @@ spring:
 
 s3:
   endpointUrl: https://s3.amazonaws.com
-  accessKeyId: AKIASJSUFYUKQQGIXM63
-  secretKey: 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
-  bucketName: baligongbuckettest
+  accessKeyId: AKIA6ODU4FMTSUBHYRKB
+  secretKey: 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
+  bucketName: rawdatalibrary
   region: eu-west-1
