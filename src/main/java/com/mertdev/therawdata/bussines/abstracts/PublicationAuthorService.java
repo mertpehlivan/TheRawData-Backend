@@ -7,5 +7,6 @@ import com.mertdev.therawdata.entities.abstracts.Publication;
 
 public interface PublicationAuthorService {
 	public void createAuthor(List<String> authors, Publication publication);
-	void addAuthorPost(UUID publicationPostId);
+
+	void addAuthorPost(UUID publicationPostId, Long id);
 }

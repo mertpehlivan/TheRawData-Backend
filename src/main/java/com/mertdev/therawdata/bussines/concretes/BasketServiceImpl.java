@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.amazonaws.services.computeoptimizer.model.Summary;
 import com.mertdev.therawdata.bussines.abstracts.BasketService;
 import com.mertdev.therawdata.bussines.abstracts.UserService;
+import com.mertdev.therawdata.bussines.responses.BasketResponse;
 import com.mertdev.therawdata.bussines.responses.SummaryRawDataFileResponse;
 import com.mertdev.therawdata.bussines.responses.SummaryRawDataResponse;
 import com.mertdev.therawdata.dataAccess.abstracts.BasketRepository;
@@ -43,7 +44,7 @@ public class BasketServiceImpl implements BasketService {
 			Basket basket = user.getBasket();
 			if (basket == null || basket.getRawDatas() == null) {
 				System.out.println("Basket or rawDatas is null");
-				return new ArrayList<>(); // Boş bir liste döndürülebilir
+				return new ArrayList<>();
 			}
 
 			List<BasketResponse> tempBaskets = new ArrayList<>();
@@ -53,7 +54,6 @@ public class BasketServiceImpl implements BasketService {
 				findPublicationPost(tempBaskets, rawData.getRawDataFileId().getPublicationPostId());
 				findRawDataFile(tempBaskets, rawData);
 			}
-
 
 			return tempBaskets;
 		} catch (Exception e) {
@@ -76,14 +76,14 @@ public class BasketServiceImpl implements BasketService {
 
 	private void findRawDataFile(List<BasketResponse> tempBaskets, RawData rawData) {
 		BasketResponse findBasket = tempBaskets.stream().filter(
-				basket->basket.getPublicationPostId() == rawData.getRawDataFileId().getPublicationPostId().getId())
+				basket -> basket.getPublicationPostId() == rawData.getRawDataFileId().getPublicationPostId().getId())
 				.findFirst().orElse(null);
-		if(findBasket == null) {
+		if (findBasket == null) {
 			System.out.println("Control");
 		}
 		SummaryRawDataFileResponse findFile = findBasket.getRawDataFile().stream()
 				.filter(file -> file.getId().equals(rawData.getRawDataFileId().getId())).findFirst().orElse(null);
-		if(findFile == null) {
+		if (findFile == null) {
 			SummaryRawDataFileResponse tempFile = new SummaryRawDataFileResponse();
 			tempFile.setFilesLenght(0);
 			tempFile.setId(rawData.getRawDataFileId().getId());
@@ -91,7 +91,7 @@ public class BasketServiceImpl implements BasketService {
 			tempFile.setRawDatas(new ArrayList<SummaryRawDataResponse>());
 			tempFile.getRawDatas().add(createSummaryRawData(rawData));
 			findBasket.getRawDataFile().add(tempFile);
-		}else {
+		} else {
 			findFile.getRawDatas().add(createSummaryRawData(rawData));
 		}
 	}
@@ -102,7 +102,7 @@ public class BasketServiceImpl implements BasketService {
 		tempRawData.setId(rawData.getId());
 		tempRawData.setPreviewImageUrl(rawData.getPreviewImageName());
 		tempRawData.setPrice(rawData.getPrice());
-		tempRawData.setRawDataExtension(exSplit(rawData.getPreviewImageName()));
+		tempRawData.setRawDataExtension(exSplit(rawData.getRawDataName()));
 		tempRawData.setRawDataLengt(0);
 		tempRawData.setTitle(rawData.getName());
 		return tempRawData;
@@ -112,6 +112,7 @@ public class BasketServiceImpl implements BasketService {
 	public BasketResponse getRawDataForPublicationFromBasket(UUID id) {
 		try {
 			List<BasketResponse> basketPublications = getAllBasket();
+
 			BasketResponse basketPublication = basketPublications.stream()
 					.filter(publication -> Objects.equals(publication.getPublicationPostId(), id)).findFirst()
 					.orElse(null);
@@ -121,7 +122,6 @@ public class BasketServiceImpl implements BasketService {
 			throw new RuntimeException("An error occurred while getting raw data for publication from basket");
 		}
 	}
-
 	@Override
 	public String addBasket(Long id) {
 		try {
@@ -153,28 +153,28 @@ public class BasketServiceImpl implements BasketService {
 
 	@Override
 	public String deleteBasket(Long id) {
-	    try {
-	        String currentUsername = userService.getCurrentUsername();
-	        if (currentUsername == null) {
-	            return "Error getting current username.";
-	        }
+		try {
+			String currentUsername = userService.getCurrentUsername();
+			if (currentUsername == null) {
+				return "Error getting current username.";
+			}
 
-	        User user = userRepository.findByEmail(currentUsername);
-	        if (user == null) {
-	            return "User not found with email: " + currentUsername;
-	        }
+			User user = userRepository.findByEmail(currentUsername);
+			if (user == null) {
+				return "User not found with email: " + currentUsername;
+			}
 
-	        Basket basket = user.getBasket();
-	        if (basket == null) {
-	            return "User does not have a basket.";
-	        }
+			Basket basket = user.getBasket();
+			if (basket == null) {
+				return "User does not have a basket.";
+			}
 
-	        basketRepository.removeRawDataFromBasket(basket.getId(), id);
-	        return "Raw data removed from the basket successfully.";
+			basketRepository.removeRawDataFromBasket(basket.getId(), id);
+			return "Raw data removed from the basket successfully.";
 
-	    } catch (Exception e) {
-	        return "Error deleting raw data from the basket: " + e.getMessage();
-	    }
+		} catch (Exception e) {
+			return "Error deleting raw data from the basket: " + e.getMessage();
+		}
 	}
 
 	private String exSplit(String text) {
@@ -202,18 +202,14 @@ public class BasketServiceImpl implements BasketService {
 
 	@Override
 	public Integer getPrice() {
-	    User user = userRepository.findByEmail(userService.getCurrentUsername());
+		User user = userRepository.findByEmail(userService.getCurrentUsername());
 
-	    // Basket null kontrolü eklenmeli
-	    if (user.getBasket() == null) {
-	        return 0;
-	    }
+		// Basket null kontrolü eklenmeli
+		if (user.getBasket() == null) {
+			return 0;
+		}
 
-	    return user.getBasket()
-	               .getRawDatas()
-	               .stream()
-	               .mapToInt(RawData::getPrice) 
-	               .sum();
+		return user.getBasket().getRawDatas().stream().mapToInt(RawData::getPrice).sum();
 	}
 
 }

@@ -2,6 +2,7 @@ package com.mertdev.therawdata.entities.concretes;
 
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,11 +29,12 @@ public class RawData {
 	private String comment;
 	private String rawDataName;
 	private int price;
+	private Double size;
 	@ManyToOne
 	@JoinColumn(name = "rawdataFileId", nullable = false)
 	private RawDataFile rawDataFileId;
 	
-	@ManyToMany(mappedBy = "rawDatas")
+	@ManyToMany(mappedBy = "rawDatas", cascade = CascadeType.REMOVE)
     private Set<Basket> carts;
 	
 	@Override

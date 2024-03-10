@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mertdev.therawdata.bussines.abstracts.BasketService;
-import com.mertdev.therawdata.bussines.concretes.BasketResponse;
 import com.mertdev.therawdata.bussines.requests.AddBasketRequest;
 import com.mertdev.therawdata.bussines.requests.DeleteBasketRequest;
+import com.mertdev.therawdata.bussines.responses.BasketResponse;
 import com.mertdev.therawdata.exceptions.BasketException;
 
 import lombok.AllArgsConstructor;
@@ -36,7 +36,7 @@ public class BasketController {
 			List<BasketResponse> basketList = basketService.getAllBasket();
 
 			if (basketList.isEmpty()) {
-				throw new BasketException("No raw data found in the basket");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No raw data found in the basket");
 			}
 
 			return ResponseEntity.ok(basketList);

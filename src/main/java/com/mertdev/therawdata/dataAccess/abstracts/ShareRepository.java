@@ -26,6 +26,10 @@ public interface ShareRepository extends JpaRepository<Share, UUID> {
 	@Query("SELECT s FROM Share s WHERE s.user.uniqueName = :uniqueName ORDER BY s.creationTime DESC")
 	Page<Share> findByUserUniqueNameOrderByCreationTime( @Param("uniqueName") String uniqueName, Pageable pageable);
 	
+	@Query("SELECT s FROM Share s WHERE s.user.id = :id ORDER BY s.creationTime DESC")
+	Page<Share> findByUserUserIdOrderByCreationTime( @Param("id") UUID id, Pageable pageable);
+	
+	
 	@Query("SELECT s FROM Share s WHERE s.publicationPost.publicationType = :publicationType AND s.user.uniqueName = :uniqueName ORDER BY s.creationTime DESC")
 	Page<Share> findByPublicationTypeAndUserUniqueNameOrderByCreationTime(
 			@Param("publicationType") String publicationType, @Param("uniqueName") String uniqueName, Pageable pageable);

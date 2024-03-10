@@ -49,8 +49,8 @@ public class PublicationPostController {
     public GetPostResponse getPost(@PathVariable UUID publicationPostId) {
     	return publicationPostService.getPost(publicationPostId);
     }
-    @GetMapping("/addAuthorPost/{publicationPostId}")
-    public ResponseEntity<String> addAuthorPost(@PathVariable String publicationPostId) {
+    @GetMapping("/addAuthorPost/{publicationPostId}/{invitationId}")
+    public ResponseEntity<String> addAuthorPost(@PathVariable String publicationPostId,@PathVariable Long invitationId) {
         System.out.println(publicationPostId);
         
         if (publicationPostId == null || publicationPostId.isEmpty()) {
@@ -60,7 +60,7 @@ public class PublicationPostController {
 
         try {
             UUID publicationPostUUID = UUID.fromString(publicationPostId);
-            publicationAuthorService.addAuthorPost(publicationPostUUID);
+            publicationAuthorService.addAuthorPost(publicationPostUUID,invitationId);
             System.out.println(publicationPostUUID);
 
             return ResponseEntity.ok("Author post added successfully.");

@@ -55,7 +55,7 @@ public class ResearchProject extends Publication implements PublicationType{
 
 	@Override
 	public String getSummary() {
-		return String.format("%s, %s, %s, %s, %s, %s, %s",
+		return String.format("%s, %s, %s",
 			    getTitle(),
 			    getDate().toString(),
 			    getPublicationAuthors().stream()

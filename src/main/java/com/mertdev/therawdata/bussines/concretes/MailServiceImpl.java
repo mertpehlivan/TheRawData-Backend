@@ -170,7 +170,7 @@ public class MailServiceImpl implements MailService {
 	                "<p>In case you upload your raw data to our site, <strong>it will be purchased by other </strong> researchers.</p>"+
 	                "<p><strong>Researchers</strong> who upload their <strong> Raw Data </strong>to the system are paid according to the number of downloads of their data through the Raw Data Library company.</p>" +
 	                "<p>The download of each raw data is <strong> subject to a fee.</strong> The data download fee for 2024 is set at 50$. The prices of company test data or computer modellings may vary.</p>" +
-	                "<p><strong>70% of the revenue </strong>generated from downloading your raw data by other researchers is paid equally to the authors. Authors are paid for each new download.</strong/></p>"+
+	                "<p><strong>60% of the revenue </strong>generated from downloading your raw data by other researchers is paid equally to the authors. Authors are paid for each new download.</strong/></p>"+
 	                "<p>Payments to authors are paid equally to authors after their study reaches each new 5 downloads.</p>"+
 	                "<p>After the number of downloads for the relevant raw data reaches 5, the technical team contacts the authors to process the payments.</p>"+
 	                "<p><strong>Authors can also track the number of times their data has been downloaded from their own profile page.</strong></p>"+

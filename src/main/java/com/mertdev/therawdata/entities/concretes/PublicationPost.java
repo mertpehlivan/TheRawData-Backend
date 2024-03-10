@@ -52,8 +52,9 @@ public class PublicationPost {
 	@OneToMany(mappedBy="publicationPostId")
     private List<RawDataFile> rawDataFile;
 	
-	private String pdfFileName;
-	
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "pdf_file", referencedColumnName = "id")
+    private PdfFile pdfFile;
 	
 	@Temporal(TemporalType.TIMESTAMP)
     @Column(name = "creation_time", updatable = false)

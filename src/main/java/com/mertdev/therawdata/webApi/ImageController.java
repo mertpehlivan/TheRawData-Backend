@@ -1,12 +1,16 @@
 package com.mertdev.therawdata.webApi;
 
+import java.util.UUID;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mertdev.therawdata.bussines.abstracts.PublicationPostService;
 import com.mertdev.therawdata.bussines.abstracts.RawDataService;
 import com.mertdev.therawdata.bussines.concretes.S3Service;
+import com.mertdev.therawdata.entities.concretes.PublicationPost;
 
 import lombok.AllArgsConstructor;
 
@@ -15,6 +19,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class ImageController {
 	private final RawDataService rawDataService;
+	private final PublicationPostService publicationPostService;
 	private final S3Service s3Service;
 	@GetMapping("previewImage/{imageName}")
 	public byte[] getPreviewImage(@PathVariable String imageName) {
@@ -32,6 +37,9 @@ public class ImageController {
 	    }
 	    return null;
 	}
+	
+	
+	
 
 	
 }

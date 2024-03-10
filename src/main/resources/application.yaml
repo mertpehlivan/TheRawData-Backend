@@ -17,7 +17,7 @@ spring:
 
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://rawdatalibraryms.c8p3thzjg7tm.eu-west-1.rds.amazonaws.com:5432/rawdatalibraryMS
+    url: jdbc:postgresql://rawdatalibrarydb.cbikq240gruk.eu-west-1.rds.amazonaws.com:5432/rawdatalibraryDB
     username: postgres
     password: 54Ra290-+
     hikari:

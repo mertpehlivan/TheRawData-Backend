@@ -22,6 +22,9 @@ public class GetPostResponse {
 	private String title;
 	private String creationTime;
 	private String publicationType;
+	private String pdfFileName;
+	private Boolean addOnly;
+	private Boolean pdfStatus;
 	private String comment;
 	private String summary;
 	private List<AuthorResponse> authors;

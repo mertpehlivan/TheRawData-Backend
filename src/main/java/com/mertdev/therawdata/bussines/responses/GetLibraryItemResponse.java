@@ -10,10 +10,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SummaryRawDataFileResponse {
-	private UUID id;
-	private String title;
-	private List<SummaryRawDataResponse> rawDatas;
-	private Integer price;
-	private int filesLenght;
+public class GetLibraryItemResponse {
+	private UUID postId;
+	private String postTitle;
+	private String publicationType;
+	private String publicationSummary;
+	private List<GetLibraryRawDataFileResponse> files;
+	
+	
 }

@@ -60,7 +60,7 @@ public class RawDataController {
 	public ResponseEntity<String> deleteRawData(@PathVariable Long id) {
 		try {
 			System.out.println("Deleting raw data with ID: " + id);
-			
+
 			rawDataService.deleteRawData(id);
 
 			return ResponseEntity.ok("Raw data deleted successfully.");
@@ -68,6 +68,12 @@ public class RawDataController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("Error deleting raw data: " + e.getMessage());
 		}
+	}
+
+	@GetMapping("/totalRawDataSize")
+	public Double getTotalRawDataSize() {
+		System.out.println("Sayi Alındı: " + rawDataService.totalRawDataSize());
+		return rawDataService.totalRawDataSize();
 	}
 
 }

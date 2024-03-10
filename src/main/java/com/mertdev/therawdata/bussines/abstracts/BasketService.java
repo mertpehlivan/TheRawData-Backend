@@ -3,7 +3,7 @@ package com.mertdev.therawdata.bussines.abstracts;
 import java.util.List;
 import java.util.UUID;
 
-import com.mertdev.therawdata.bussines.concretes.BasketResponse;
+import com.mertdev.therawdata.bussines.responses.BasketResponse;
 
 public interface BasketService {
 	public List<BasketResponse> getAllBasket();

@@ -19,6 +19,7 @@ public class CreateThesisRequest {
 	private String comment;
 	private List<String> authors;
 	private Boolean addOnly;
+	private Boolean pdfStatus;
 	private MultipartFile pdfFile;
 	private String fileEx;
 }

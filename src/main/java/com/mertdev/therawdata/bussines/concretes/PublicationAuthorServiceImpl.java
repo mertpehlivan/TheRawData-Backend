@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.amazonaws.services.alexaforbusiness.model.NotFoundException;
 import com.mertdev.therawdata.bussines.abstracts.PublicationAuthorService;
 import com.mertdev.therawdata.bussines.abstracts.UserService;
+import com.mertdev.therawdata.dataAccess.abstracts.InvitationRepository;
 import com.mertdev.therawdata.dataAccess.abstracts.PublicationAuthorRepository;
 import com.mertdev.therawdata.dataAccess.abstracts.PublicationPostRepository;
 import com.mertdev.therawdata.dataAccess.abstracts.ShareRepository;
@@ -31,7 +32,7 @@ public class PublicationAuthorServiceImpl implements PublicationAuthorService {
 	private final UserRepository userRepository;
 	private final PublicationPostRepository publicationPostRepository;
 	private final ShareRepository shareRepository;
-
+	private final InvitationRepository invitationRepository;
 	@Override public void createAuthor(List<String> authorIds, Publication publication) {
 		List<UUID> uuids = convertToUUID(authorIds);
 		System.out.println(uuids);
@@ -56,7 +57,7 @@ public class PublicationAuthorServiceImpl implements PublicationAuthorService {
 	}
 
 	@Override
-	public void addAuthorPost(UUID publicationPostId) {
+	public void addAuthorPost(UUID publicationPostId,Long id) {
 	    try {
 	        if (publicationPostId == null) {
 	            throw new IllegalArgumentException("PublicationPostId cannot be null.");
@@ -70,6 +71,8 @@ public class PublicationAuthorServiceImpl implements PublicationAuthorService {
 	    		share.setUser(user);
 
 	        	shareRepository.save(share);
+	        	
+	        	invitationRepository.deleteById(id);
 	        }
 	        
 	    } catch (IllegalArgumentException e) {

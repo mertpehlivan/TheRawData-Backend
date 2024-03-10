@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mertdev.therawdata.bussines.abstracts.PublicationPostService;
 import com.mertdev.therawdata.bussines.abstracts.UserService;
 import com.mertdev.therawdata.bussines.concretes.S3Service;
 import com.mertdev.therawdata.bussines.requests.ProfileImageRequest;
 import com.mertdev.therawdata.dataAccess.abstracts.UserRepository;
+import com.mertdev.therawdata.entities.concretes.PublicationPost;
 import com.mertdev.therawdata.entities.concretes.User;
 
 import io.jsonwebtoken.io.IOException;
@@ -26,6 +28,7 @@ public class FileController {
 	private final S3Service s3Service;
 	private UserService userService;
 	private UserRepository userRepository;
+	private PublicationPostService publicationPostService;
 
 	@PostMapping("/profileImage")
 	@ResponseBody
@@ -60,7 +63,6 @@ public class FileController {
 			return ResponseEntity.status(500).body("Error uploading the file.");
 		}
 	}
-
 	
 	private String exSplit(String text) {
 	    int lastDotIndex = text.lastIndexOf('.');
@@ -72,6 +74,25 @@ public class FileController {
 	        System.out.println("Hata: Nokta bulunamadı");
 	        return null;
 	    }
+	}
+	@GetMapping("pdf/{publicationId}")
+	public byte[] downloadPdf(@PathVariable UUID publicationId) {
+		User user = userService.getCurrentUser();
+		PublicationPost data = publicationPostService.findPost(publicationId);
+		System.out.println(publicationId);
+	    try {
+	    	if(data.getPdfFile().getAddOnly() && data.getPdfFile().getPdfFileName() != null && data.getPdfFile().getPdfStatus()) {
+	    		return s3Service.getObject(
+						"%s/%s/pdf/%s".formatted(data.getUser().getId(), data.getId(),data.getPdfFile().getPdfFileName()));
+	    	}else if(user.equals(data.getUser())) {
+	    		return s3Service.getObject(
+						"%s/%s/pdf/%s".formatted(data.getUser().getId(), data.getId(),data.getPdfFile().getPdfFileName()));
+	    	}
+	    	
+	    } catch (Exception e) {
+	        return null;
+	    }
+	    return null;
 	}
 
 }

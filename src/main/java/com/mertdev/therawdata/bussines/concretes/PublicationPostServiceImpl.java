@@ -53,6 +53,7 @@ import com.mertdev.therawdata.entities.concretes.CompanyTestReport;
 import com.mertdev.therawdata.entities.concretes.ConferencePaper;
 import com.mertdev.therawdata.entities.concretes.Invitations;
 import com.mertdev.therawdata.entities.concretes.Notification;
+import com.mertdev.therawdata.entities.concretes.PdfFile;
 import com.mertdev.therawdata.entities.concretes.PublicationAuthor;
 import com.mertdev.therawdata.entities.concretes.PublicationPost;
 import com.mertdev.therawdata.entities.concretes.RawData;
@@ -84,14 +85,14 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		return repository.getById(id);
 	}
 
-	private void pdfUploud(PublicationPost data,MultipartFile file) {
+	private void pdfUploud(PublicationPost data, MultipartFile file) {
 		try {
-			if(file != null) {
-				s3Service.putObject("%s/%s/pdf/%s".formatted(
-						data.getUser().getId(),
-						data.getId(),file.getOriginalFilename()),file.getBytes());
+			if (file != null) {
+				s3Service.putObject(
+						"%s/%s/pdf/%s".formatted(data.getUser().getId(), data.getId(), file.getOriginalFilename()),
+						file.getBytes());
 			}
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -106,10 +107,22 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(article);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Article");
-		publicationPost.setPdfFileName(createArticleRequest.getPdfFile().getOriginalFilename());
+		PdfFile pdfFile = new PdfFile();
+		if (createArticleRequest.getPdfStatus()) {
+			pdfFile.setAddOnly(createArticleRequest.getAddOnly());
+			pdfFile.setPdfExtension(createArticleRequest.getFileEx());
+			pdfFile.setPdfFileName(createArticleRequest.getPdfFile().getOriginalFilename());
+			pdfFile.setPdfStatus(createArticleRequest.getPdfStatus());
+		} else {
+			pdfFile.setPdfStatus(createArticleRequest.getPdfStatus());
+		}
+		publicationPost.setPdfFile(pdfFile);
+
 		PublicationPost data = repository.save(publicationPost);
-		
-		pdfUploud(data, createArticleRequest.getPdfFile());
+		if (createArticleRequest.getPdfStatus()) {
+			pdfUploud(data, createArticleRequest.getPdfFile());
+		}
+
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -132,9 +145,21 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(chapterInBook);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Chapter in Book");
-		publicationPost.setPdfFileName(chapterInABookRequest.getPdfFile().getOriginalFilename());
+		PdfFile pdfFile = new PdfFile();
+		if (chapterInABookRequest.getPdfStatus()) {
+			pdfFile.setAddOnly(chapterInABookRequest.getAddOnly());
+			pdfFile.setPdfExtension(chapterInABookRequest.getFileEx());
+			pdfFile.setPdfFileName(chapterInABookRequest.getPdfFile().getOriginalFilename());
+			pdfFile.setPdfStatus(chapterInABookRequest.getPdfStatus());
+		} else {
+			pdfFile.setPdfStatus(chapterInABookRequest.getPdfStatus());
+		}
+		publicationPost.setPdfFile(pdfFile);
 		PublicationPost data = repository.save(publicationPost);
-		pdfUploud(data, chapterInABookRequest.getPdfFile());
+		if (chapterInABookRequest.getPdfStatus()) {
+			pdfUploud(data, chapterInABookRequest.getPdfFile());
+		}
+
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -157,9 +182,21 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(conferencePaper);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Conference Paper");
-		publicationPost.setPdfFileName(conferencePaperRequest.getPdfFile().getOriginalFilename());
+		PdfFile pdfFile = new PdfFile();
+		if (conferencePaperRequest.getPdfStatus()) {
+			pdfFile.setAddOnly(conferencePaperRequest.getAddOnly());
+			pdfFile.setPdfExtension(conferencePaperRequest.getFileEx());
+			pdfFile.setPdfFileName(conferencePaperRequest.getPdfFile().getOriginalFilename());
+			pdfFile.setPdfStatus(conferencePaperRequest.getPdfStatus());
+		} else {
+			pdfFile.setPdfStatus(conferencePaperRequest.getPdfStatus());
+		}
+		publicationPost.setPdfFile(pdfFile);
 		PublicationPost data = repository.save(publicationPost);
-		pdfUploud(data, conferencePaperRequest.getPdfFile());
+		if (conferencePaperRequest.getPdfStatus()) {
+			pdfUploud(data, conferencePaperRequest.getPdfFile());
+		}
+
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -181,9 +218,21 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(thesis);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Thesis");
-		publicationPost.setPdfFileName(createThesisRequest.getPdfFile().getOriginalFilename());
+		PdfFile pdfFile = new PdfFile();
+		if (createThesisRequest.getPdfStatus()) {
+			pdfFile.setAddOnly(createThesisRequest.getAddOnly());
+			pdfFile.setPdfExtension(createThesisRequest.getFileEx());
+			pdfFile.setPdfFileName(createThesisRequest.getPdfFile().getOriginalFilename());
+			pdfFile.setPdfStatus(createThesisRequest.getPdfStatus());
+		} else {
+			pdfFile.setPdfStatus(createThesisRequest.getPdfStatus());
+		}
+		publicationPost.setPdfFile(pdfFile);
 		PublicationPost data = repository.save(publicationPost);
-		pdfUploud(data, createThesisRequest.getPdfFile());
+		if (createThesisRequest.getPdfStatus()) {
+			pdfUploud(data, createThesisRequest.getPdfFile());
+		}
+
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -207,9 +256,21 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(reasearchProject);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Research Project");
-		publicationPost.setPdfFileName(createReasearchProjectRequest.getPdfFile().getOriginalFilename());
+		PdfFile pdfFile = new PdfFile();
+		if (createReasearchProjectRequest.getPdfStatus()) {
+			pdfFile.setAddOnly(createReasearchProjectRequest.getAddOnly());
+			pdfFile.setPdfExtension(createReasearchProjectRequest.getFileEx());
+			pdfFile.setPdfFileName(createReasearchProjectRequest.getPdfFile().getOriginalFilename());
+			pdfFile.setPdfStatus(createReasearchProjectRequest.getPdfStatus());
+		} else {
+			pdfFile.setPdfStatus(createReasearchProjectRequest.getPdfStatus());
+		}
+		publicationPost.setPdfFile(pdfFile);
 		PublicationPost data = repository.save(publicationPost);
-		pdfUploud(data, createReasearchProjectRequest.getPdfFile());
+		if (createReasearchProjectRequest.getPdfStatus()) {
+			pdfUploud(data, createReasearchProjectRequest.getPdfFile());
+		}
+
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -231,9 +292,21 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		publicationPost.setPublication(companyTestReport);
 		publicationPost.setUser(user);
 		publicationPost.setPublicationType("Company Test Report");
-		publicationPost.setPdfFileName(createCompanyTestReportRequest.getPdfFile().getOriginalFilename());
+		PdfFile pdfFile = new PdfFile();
+		if (createCompanyTestReportRequest.getPdfStatus()) {
+			pdfFile.setAddOnly(createCompanyTestReportRequest.getAddOnly());
+			pdfFile.setPdfExtension(createCompanyTestReportRequest.getFileEx());
+			pdfFile.setPdfFileName(createCompanyTestReportRequest.getPdfFile().getOriginalFilename());
+			pdfFile.setPdfStatus(createCompanyTestReportRequest.getPdfStatus());
+		} else {
+			pdfFile.setPdfStatus(createCompanyTestReportRequest.getPdfStatus());
+		}
+		publicationPost.setPdfFile(pdfFile);
 		PublicationPost data = repository.save(publicationPost);
-		pdfUploud(data, createCompanyTestReportRequest.getPdfFile());
+		if (createCompanyTestReportRequest.getPdfStatus()) {
+			pdfUploud(data, createCompanyTestReportRequest.getPdfFile());
+		}
+
 		Share share = new Share();
 		share.setPublicationPost(data);
 		share.setUser(user);
@@ -360,12 +433,16 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 				tempPost.setShareUniqueName(null);
 				tempPost.setShareUserId(null);
 				tempPost.setShareProfileImage(null);
+				tempPost.setAddOnly(publication.getPublicationPost().getPdfFile().getAddOnly());
+				tempPost.setPdfStatus(publication.getPublicationPost().getPdfFile().getPdfStatus());
+				tempPost.setPdfFileName(publication.getPublicationPost().getPdfFile().getPdfFileName());
 			} else {
 				tempPost.setShareFullName(
 						"%s %s".formatted(publication.getUser().getFirstname(), publication.getUser().getLastname()));
 				tempPost.setShareUniqueName(publication.getUser().getUniqueName());
 				tempPost.setShareUserId(publication.getUser().getId());
 				tempPost.setShareProfileImage(publication.getUser().getProfileImageName());
+
 			}
 			for (PublicationAuthor author : publication.getPublicationPost().getPublication().getPublicationAuthors()) {
 				tempAuthors.add(authorToResponse.toResponse(author));
@@ -497,6 +574,9 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		tempPost.setComment(publication.getPublication().getComment());
 		tempPost.setId(publication.getId());
 		tempPost.setPublicationType(publicationType(publication.getPublication().getObject()));
+		tempPost.setAddOnly(publication.getPdfFile().getAddOnly());
+		tempPost.setPdfStatus(publication.getPdfFile().getPdfStatus());
+		tempPost.setPdfFileName(publication.getPdfFile().getPdfFileName());
 		List<SummaryRawDataFileResponse> tempRawFiles = new ArrayList<>();
 		for (RawDataFile file : publication.getRawDataFile()) {
 			SummaryRawDataFileResponse tempRawDataFileResponse = new SummaryRawDataFileResponse();
@@ -567,6 +647,9 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 			tempPost.setComment(publication.getPublicationPost().getPublication().getComment());
 			tempPost.setId(publication.getPublicationPost().getId());
 			tempPost.setPublicationType(publicationType(publication.getPublicationPost().getPublication().getObject()));
+			tempPost.setAddOnly(publication.getPublicationPost().getPdfFile().getAddOnly());
+			tempPost.setPdfStatus(publication.getPublicationPost().getPdfFile().getPdfStatus());
+			tempPost.setPdfFileName(publication.getPublicationPost().getPdfFile().getPdfFileName());
 			List<SummaryRawDataFileResponse> tempRawFiles = new ArrayList<>();
 			for (RawDataFile file : publication.getPublicationPost().getRawDataFile()) {
 				SummaryRawDataFileResponse tempRawDataFileResponse = new SummaryRawDataFileResponse();
@@ -613,7 +696,7 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		}
 		return responses;
 	}
-
+	
 	@Override
 	public List<GetPostResponse> getFollowingUserPost(Pageable pageable) {
 		User user = userService.getCurrentUser();

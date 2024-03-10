@@ -1,9 +1,7 @@
-package com.mertdev.therawdata.bussines.concretes;
+package com.mertdev.therawdata.bussines.responses;
 
 import java.util.List;
 import java.util.UUID;
-
-import com.mertdev.therawdata.bussines.responses.SummaryRawDataFileResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
