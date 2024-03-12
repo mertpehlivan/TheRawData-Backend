@@ -65,6 +65,8 @@ public interface PublicationPostService {
 
 	<T> List<PublicationPostResponse> getAll(List<T> items);
 
+	void deletePublicationPost(UUID postId) throws Exception;
+
 	
 
 }

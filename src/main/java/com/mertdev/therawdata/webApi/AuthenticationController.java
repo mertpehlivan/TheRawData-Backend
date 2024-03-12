@@ -80,6 +80,6 @@ public class AuthenticationController {
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public String handleBadCredentialsException(BadCredentialsException ex) {
-        return "Incorrect username or password.";
+        return "Invalid email or password.";
     }
 }

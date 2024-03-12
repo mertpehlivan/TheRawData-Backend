@@ -19,11 +19,21 @@ import com.mertdev.therawdata.bussines.requests.ChangePasswordRequest;
 import com.mertdev.therawdata.bussines.responses.GetProfileDataResponse;
 import com.mertdev.therawdata.bussines.responses.GetUserResponse;
 import com.mertdev.therawdata.bussines.responses.NotificationResponse;
+import com.mertdev.therawdata.bussines.responses.UserPublicationsCountResponse;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.DTOToUserMappers;
 import com.mertdev.therawdata.core.utilities.mappers.abstracts.UserToDTOMappers;
 import com.mertdev.therawdata.dataAccess.abstracts.NotificationRepository;
+import com.mertdev.therawdata.dataAccess.abstracts.ShareRepository;
 import com.mertdev.therawdata.dataAccess.abstracts.UserRepository;
+import com.mertdev.therawdata.entities.concretes.Article;
+import com.mertdev.therawdata.entities.concretes.ChapterInBook;
+import com.mertdev.therawdata.entities.concretes.CompanyTestReport;
+import com.mertdev.therawdata.entities.concretes.ConferencePaper;
 import com.mertdev.therawdata.entities.concretes.Notification;
+import com.mertdev.therawdata.entities.concretes.PublicationPost;
+import com.mertdev.therawdata.entities.concretes.ResearchProject;
+import com.mertdev.therawdata.entities.concretes.Share;
+import com.mertdev.therawdata.entities.concretes.Thesis;
 import com.mertdev.therawdata.entities.concretes.User;
 import com.mertdev.therawdata.exceptions.EmailException;
 import com.mertdev.therawdata.exceptions.UniqueNameException;
@@ -41,7 +51,7 @@ public class UserServiceImpl implements UserService {
 	private final SimpMessagingTemplate messagingTemplate;
 	private final NotificationRepository notificationRepository;
 	private final MailService mailService;
-
+	private final ShareRepository shareRepository;
 	@Override
 	public String getCurrentUsername() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -108,6 +118,8 @@ public class UserServiceImpl implements UserService {
 			profileResponse.setUniqueName(user.getUniqueName());
 			profileResponse.setId(user.getId());
 			profileResponse.setProfileImageUrl(user.getProfileImageName());
+			profileResponse.setPublications(user.getShares().size());
+			
 			return profileResponse;
 
 		} catch (Exception e) {
@@ -179,6 +191,28 @@ public class UserServiceImpl implements UserService {
 
 		}
 
+	}
+	@Override
+	public UserPublicationsCountResponse countResponse(String uniqueName) {
+		List<Share> shares = shareRepository.findByUserUniqueNameOrderByCreationTime(uniqueName);
+		
+		UserPublicationsCountResponse publicationCountResponse = new UserPublicationsCountResponse(); 
+		for(Share item : shares) {
+			if (item.getPublicationPost().getPublication() instanceof Article) {
+				publicationCountResponse.setArticleCount(publicationCountResponse.getArticleCount() + 1);
+			} else if (item.getPublicationPost().getPublication() instanceof ChapterInBook) {
+				publicationCountResponse.setChapterInBook(publicationCountResponse.getChapterInBook() + 1);
+			} else if (item.getPublicationPost().getPublication() instanceof CompanyTestReport) {
+				publicationCountResponse.setCompanyTestReport(publicationCountResponse.getCompanyTestReport() + 1);
+			} else if (item.getPublicationPost().getPublication() instanceof ConferencePaper) {
+				publicationCountResponse.setConferencePaper(publicationCountResponse.getConferencePaper() + 1);
+			} else if (item.getPublicationPost().getPublication() instanceof ResearchProject) {
+				publicationCountResponse.setResearchProject(publicationCountResponse.getResearchProject() + 1);
+			} else if (item.getPublicationPost().getPublication() instanceof Thesis) {
+				publicationCountResponse.setThesis(publicationCountResponse.getThesis() + 1);
+			}
+		}
+		return publicationCountResponse;
 	}
 
 	@Override
@@ -301,6 +335,12 @@ public class UserServiceImpl implements UserService {
 		} catch (Exception e) {
 			throw e;
 		}
+	}
+	@Override
+	public void changeCountry(String newCountry) {
+		User user = this.getCurrentUser();
+		user.setCountry(newCountry);
+		userRepository.save(user);
 	}
 
 }

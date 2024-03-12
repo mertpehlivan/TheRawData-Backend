@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import com.mertdev.therawdata.bussines.requests.ChangePasswordRequest;
 import com.mertdev.therawdata.bussines.responses.GetProfileDataResponse;
 import com.mertdev.therawdata.bussines.responses.GetUserResponse;
+import com.mertdev.therawdata.bussines.responses.UserPublicationsCountResponse;
 import com.mertdev.therawdata.entities.concretes.User;
 
 public interface UserService {
@@ -25,5 +26,7 @@ public interface UserService {
 	Boolean changeEmailStatus(String newEmail);
 	void changeUsername(String newUsername);
 	void changePassword(ChangePasswordRequest request) throws Exception;
+	void changeCountry(String newCountry);
+	UserPublicationsCountResponse countResponse(String uniqueName);
 	
 }

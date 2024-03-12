@@ -1,6 +1,5 @@
 package com.mertdev.therawdata.bussines.concretes;
 
-import java.util.Iterator;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -13,6 +12,7 @@ import com.mertdev.therawdata.bussines.abstracts.RawDataService;
 import com.mertdev.therawdata.bussines.abstracts.UserService;
 import com.mertdev.therawdata.bussines.requests.CreateRawDataRequest;
 import com.mertdev.therawdata.bussines.requests.UpdateRawDataRequest;
+import com.mertdev.therawdata.dataAccess.abstracts.RawDataFileRepository;
 import com.mertdev.therawdata.dataAccess.abstracts.RawDataRepository;
 import com.mertdev.therawdata.entities.concretes.PublicationPost;
 import com.mertdev.therawdata.entities.concretes.RawData;
@@ -26,15 +26,14 @@ import lombok.AllArgsConstructor;
 public class RawDataServiceImpl implements RawDataService {
 	private static final Logger log = LoggerFactory.getLogger(RawDataServiceImpl.class);
 	private final UserService userService;
-	private final AmazonClient amazonClient;
-	private final RawDataFileService dataFileService;
+	private final RawDataFileRepository rawFileRepository;
 	private final RawDataRepository rawDataRepository;
 	private final S3Service s3Service;
 	
 	@Override
 	public void createRawData(CreateRawDataRequest createRawDataRequest) throws Exception {
 		try {
-			RawDataFile file = dataFileService.getByFileId(createRawDataRequest.getRawDataFileId());
+			Optional<RawDataFile> file = rawFileRepository.findById(createRawDataRequest.getRawDataFileId());
 			String email = userService.getCurrentUsername();
 			String imageName = UUID.randomUUID().toString() + "."
 					+ exSplit(createRawDataRequest.getImage().getOriginalFilename());
@@ -45,16 +44,16 @@ public class RawDataServiceImpl implements RawDataService {
 			rawData.setName(createRawDataRequest.getName());
 			rawData.setPreviewImageName(imageName);
 			rawData.setComment(createRawDataRequest.getComment());
-			rawData.setRawDataFileId(file);
+			rawData.setRawDataFileId(file.get());
 			rawData.setRawDataName(rawDataName);
 			rawData.setPrice(createRawDataRequest.getPrice());
 			rawData.setSize(bytesToMB(createRawDataRequest.getRawData().getSize()));
 			RawData rawDataSaved = rawDataRepository.save(rawData);
 			UUID userId = userService.getCurrentUser().getId();
-			s3Service.putObject("%s/%s/%s/%s/previewImage/%s".formatted(userId, file.getPublicationPostId().getId(),
-					file.getId(), rawDataSaved.getId(), imageName), createRawDataRequest.getImage().getBytes());
-			s3Service.putObject("%s/%s/%s/%s/rawData/%s".formatted(userId, file.getPublicationPostId().getId(),
-					file.getId(), rawDataSaved.getId(), rawDataName), createRawDataRequest.getRawData().getBytes());
+			s3Service.putObject("%s/%s/%s/%s/previewImage/%s".formatted(userId, file.get().getPublicationPostId().getId(),
+					file.get().getId(), rawDataSaved.getId(), imageName), createRawDataRequest.getImage().getBytes());
+			s3Service.putObject("%s/%s/%s/%s/rawData/%s".formatted(userId, file.get().getPublicationPostId().getId(),
+					file.get().getId(), rawDataSaved.getId(), rawDataName), createRawDataRequest.getRawData().getBytes());
 
 		} catch (Exception e) {
 			throw e;
@@ -153,10 +152,14 @@ public class RawDataServiceImpl implements RawDataService {
 		try {
 			Optional<RawData> rawData = rawDataRepository.findById(rawDataId);
 			RawData data = rawData.get();
-			s3Service.listObjectsDelete("%s/%s/%s/%s/".formatted(
-					data.getRawDataFileId().getPublicationPostId().getUser().getId(),
-					data.getRawDataFileId().getPublicationPostId().getId(), data.getRawDataFileId().getId(),
-					data.getId()));
+			 s3Service.deleteObject("%s/%s/%s/%s/rawData/%s".formatted(
+                     data.getRawDataFileId().getPublicationPostId().getUser().getId(),
+                     data.getRawDataFileId().getPublicationPostId().getId(), data.getRawDataFileId().getId(),
+                     data.getId(), data.getRawDataName()));
+			 s3Service.deleteObject("%s/%s/%s/%s/previewImage/%s".formatted(
+                     data.getRawDataFileId().getPublicationPostId().getUser().getId(),
+                     data.getRawDataFileId().getPublicationPostId().getId(), data.getRawDataFileId().getId(),
+                     data.getId(), data.getPreviewImageName()));
 			
 			rawDataRepository.deleteById(data.getId());
 			

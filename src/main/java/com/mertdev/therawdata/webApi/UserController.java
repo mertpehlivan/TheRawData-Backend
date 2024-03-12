@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,8 +21,10 @@ import com.mertdev.therawdata.bussines.requests.ChangeUsernameRequest;
 import com.mertdev.therawdata.bussines.requests.GetByUsernameRequest;
 import com.mertdev.therawdata.bussines.requests.SearchRequest;
 import com.mertdev.therawdata.bussines.requests.SendEmailCodeRequest;
+import com.mertdev.therawdata.bussines.requests.UpdateCountryRequest;
 import com.mertdev.therawdata.bussines.responses.GetProfileDataResponse;
 import com.mertdev.therawdata.bussines.responses.GetUserResponse;
+import com.mertdev.therawdata.bussines.responses.UserPublicationsCountResponse;
 import com.mertdev.therawdata.dataAccess.abstracts.UserRepository;
 import com.mertdev.therawdata.entities.concretes.User;
 
@@ -38,6 +41,10 @@ public class UserController {
 	@GetMapping("/get-user")
 	public GetUserResponse getUser() {
 		return userService.getUser();
+	}
+	@GetMapping("/userPublicationsCount/{uniqueName}")
+	public UserPublicationsCountResponse publicationsCountResponse(@PathVariable String uniqueName) {
+		return userService.countResponse(uniqueName);
 	}
 
 	@GetMapping("/search")
@@ -149,6 +156,16 @@ public class UserController {
 		
 		
 	}
+	@PostMapping("/changeCountry")
+	public ResponseEntity<?> changeCountry(@RequestBody UpdateCountryRequest newCountry) {
+	    try {
+	        userService.changeCountry(newCountry.getCountry());
+	        return ResponseEntity.ok().build();
+	    } catch (Exception e) {
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to change country: " + e.getMessage());
+	    }
+	}
+
 	
 	
 	

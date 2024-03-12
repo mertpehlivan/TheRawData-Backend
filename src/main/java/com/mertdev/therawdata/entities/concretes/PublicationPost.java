@@ -46,7 +46,7 @@ public class PublicationPost {
     @JoinColumn(name = "publicationId", referencedColumnName = "id")
 	private Publication publication;
 	
-	@OneToMany(mappedBy="publicationPost")
+	@OneToMany(mappedBy="publicationPost",cascade = CascadeType.ALL)
     private List<Share> shares;
 	
 	@OneToMany(mappedBy="publicationPostId")

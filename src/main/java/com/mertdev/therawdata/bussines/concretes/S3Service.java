@@ -1,7 +1,10 @@
 package com.mertdev.therawdata.bussines.concretes;
 
 import java.io.IOException;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -9,11 +12,17 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.endpoints.internal.GetAttr.Part.Key;
+import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.S3Object;
@@ -53,24 +62,7 @@ public class S3Service {
 		}
 	}
 
-	public void listObjectsDelete(String key) {
-		try {
-			ListObjectsRequest listObjects = ListObjectsRequest.builder().bucket(bucketName).prefix(key).build();
-
-			ListObjectsResponse res = s3Client.listObjects(listObjects);
-			List<S3Object> objects = res.contents();
-
-			for (S3Object object : objects) {
-				s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucketName).key(object.key()).build());
-				System.out.println("Object deleted: " + object.key());
-			}
-
-		} catch (S3Exception e) {
-			System.err.println(e.awsErrorDetails().errorMessage());
-			System.exit(1);
-		}
-	}
-
+	   
 	private static long calKb(Long val) {
 		return val / 1024;
 	}

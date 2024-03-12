@@ -39,7 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
 			notificationResponse.setFullName(notification.getFullName());
 			notificationResponse.setPublicationLink(notification.getPublicationLink());
 			notificationResponse.setPublicationTitle(notification.getPublicationTitle());
-			notificationResponse.setUserLink("/%s".formatted(notification.getUserLink()));
+			notificationResponse.setUserLink("%s".formatted(notification.getUserLink()));
 			notificationResponse.setType(notification.getType());
 			notificationResponse.setStatus(false);
 			notificationResponses.add(notificationResponse);

@@ -8,6 +8,7 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.mertdev.therawdata.bussines.abstracts.PublicationPostService;
+import com.mertdev.therawdata.bussines.abstracts.RawDataFileService;
+import com.mertdev.therawdata.bussines.abstracts.RawDataService;
 import com.mertdev.therawdata.bussines.abstracts.UserService;
 import com.mertdev.therawdata.bussines.requests.CreateArticleRequest;
 import com.mertdev.therawdata.bussines.requests.CreateChapterInABookRequest;
@@ -79,6 +82,8 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 	private final InvitationRepository invitationRepository;
 	private final ShareRepository shareRepository;
 	private final S3Service s3Service;
+	private final RawDataFileService dataFileService;
+	
 
 	@Override
 	public PublicationPost findPost(UUID id) {
@@ -346,7 +351,30 @@ public class PublicationPostServiceImpl implements PublicationPostService {
 		}
 
 	}
-
+	@Override
+	public void deletePublicationPost(UUID postId) throws Exception {
+		
+		try {
+			User user = userService.getCurrentUser();
+			Optional<PublicationPost> post = repository.findById(postId);
+			PublicationPost data = post.get();
+			if(user.equals(post.get().getUser()) == false) {
+				throw new Exception("Acces Denied");
+			}
+			for (RawDataFile file : post.get().getRawDataFile()) {
+				dataFileService.deleteRawDataFile(file.getId());
+			}
+			if(post.get().getPdfFile().getPdfStatus()) {
+				s3Service.deleteObject(
+						"%s/%s/pdf/%s".formatted(data.getUser().getId(), data.getId(),data.getPdfFile().getPdfFileName()));
+			}
+				
+			repository.deleteById(postId);
+		} catch (Exception e) {
+			throw e;
+		}
+		
+	}
 	private void sendToInvitations(PublicationPost data, List<String> authors) {
 		for (String author : authors) {
 			Optional<User> user = userRepository.findById(UUID.fromString(author));

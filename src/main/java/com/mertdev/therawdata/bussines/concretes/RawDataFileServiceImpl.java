@@ -6,14 +6,16 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.services.alexaforbusiness.model.NotFoundException;
-import com.mertdev.therawdata.bussines.abstracts.PublicationPostService;
 import com.mertdev.therawdata.bussines.abstracts.RawDataFileService;
+import com.mertdev.therawdata.bussines.abstracts.RawDataService;
 import com.mertdev.therawdata.bussines.abstracts.UserService;
 import com.mertdev.therawdata.bussines.requests.CreateRawDataFileRequest;
 import com.mertdev.therawdata.bussines.requests.UpdateTitleRawDataFileRequest;
 import com.mertdev.therawdata.bussines.responses.CreatedRawDataFileIdResponse;
+import com.mertdev.therawdata.dataAccess.abstracts.PublicationPostRepository;
 import com.mertdev.therawdata.dataAccess.abstracts.RawDataFileRepository;
 import com.mertdev.therawdata.entities.concretes.PublicationPost;
+import com.mertdev.therawdata.entities.concretes.RawData;
 import com.mertdev.therawdata.entities.concretes.RawDataFile;
 
 import lombok.AllArgsConstructor;
@@ -21,17 +23,17 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class RawDataFileServiceImpl implements RawDataFileService {
-	private final PublicationPostService postService;
+	private final PublicationPostRepository postRepository;
 	private final RawDataFileRepository rawDataFileRepository;
-	private final S3Service s3Service;
+	private final RawDataService rawDataService;
 	private UserService userService;
 
 	@Override
 	public CreatedRawDataFileIdResponse createRawDataFile(CreateRawDataFileRequest createRawDataFileRequest) {
-		PublicationPost post = postService.findPost(createRawDataFileRequest.getPublicationPostId());
+		Optional<PublicationPost> post = postRepository.findById(createRawDataFileRequest.getPublicationPostId());
 		RawDataFile rawDataFile = new RawDataFile();
 		rawDataFile.setName(createRawDataFileRequest.getName());
-		rawDataFile.setPublicationPostId(post);
+		rawDataFile.setPublicationPostId(post.get());
 
 		return new CreatedRawDataFileIdResponse(rawDataFileRepository.save(rawDataFile).getId());
 	}
@@ -65,18 +67,20 @@ public class RawDataFileServiceImpl implements RawDataFileService {
 	public void deleteRawDataFile(UUID fileId) throws Exception {
 		Optional<RawDataFile> rawDataFile = rawDataFileRepository.findById(fileId);
 		RawDataFile data = rawDataFile.get();
+		if(data.getRawDatas() == null || data == null) {
+			throw new Exception("RawDataFile or RawData Null");
+		}
 		if(userService.getCurrentUser().getId() != data.getPublicationPostId().getUser().getId()) {
 			throw new Exception("Unauthorised Access");
 		}
 		
 		try {
-			data.getRawDatas().clear();
-			rawDataFileRepository.save(data);
-			s3Service.deleteObject("%s/%s/%s".formatted(
-					data.getPublicationPostId().getUser().getEmail(),
-					data.getPublicationPostId().getId(), 
-					data.getId()));
-			rawDataFileRepository.deleteById(data.getId());
+			for(RawData rawData : data.getRawDatas()) {
+				rawDataService.deleteRawData(rawData.getId());
+			}
+			
+			rawDataFileRepository.delete(data);
+			
 			
 			
 		} catch (Exception e) {
